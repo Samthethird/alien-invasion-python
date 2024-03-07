@@ -298,7 +298,8 @@ def close_game(ai_settings, stats):
     '''save game before closing'''
     # Save high score.
     with open(ai_settings.data_location, 'w') as high_score:
-        json.dump(high_score, stats.high_score)
+        high_score.write(str(stats.high_score))
     
     # Close game.
     sys.exit()
+

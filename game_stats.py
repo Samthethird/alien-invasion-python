@@ -11,10 +11,11 @@ class GameStats():
         self.game_active = False
         
         # Reading high_score from save data
+        self.high_score = 0
         with open(ai_settings.data_location) as high_score:
-            self.high_score = json.load(high_score)
+            contents = high_score.read()
+        self.high_score = int(contents.rstrip())
             
-
     def reset_stats(self):
         '''A method for stats that reset each game.'''
         self.ships_left = self.ai_settings.ship_limit

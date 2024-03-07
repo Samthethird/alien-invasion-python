@@ -27,7 +27,7 @@ class Settings():
         self.score_scale = 1.15
 
         # save data file location.
-        self.data_location = "saves/save_data.json"
+        self.data_location = "saves/save_data.txt"
 
         self.initialize_dynamic_settings()
 
