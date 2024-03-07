@@ -1,3 +1,5 @@
+import json
+
 class GameStats():
     '''Track statistics for Alien Invasion.'''
     def __init__(self, ai_settings):
@@ -8,10 +10,10 @@ class GameStats():
         # Start Alien Invasion in an inactive state.
         self.game_active = False
         
-        with open("saves/save_data.txt") as high_score:
-            contents = high_score.read()
-        self.high_score = int(contents.rstrip())
-
+        # Reading high_score from save data
+        with open(ai_settings.data_location) as high_score:
+            self.high_score = json.load(high_score)
+            
 
     def reset_stats(self):
         '''A method for stats that reset each game.'''

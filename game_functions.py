@@ -4,6 +4,7 @@ from bullet import Bullet
 from alien import Alien
 from time import sleep
 from ship import Ship
+import json
 
 def check_keydown_events(event, ai_settings, screen, stats, ship, aliens, bullets):
     '''Respond to key presses.'''
@@ -14,7 +15,7 @@ def check_keydown_events(event, ai_settings, screen, stats, ship, aliens, bullet
     elif event.key == pygame.K_SPACE:
         fire_bullet(ai_settings, screen, ship, bullets)
     elif event.key == pygame.K_q:
-        sys.exit()
+        close_game(ai_settings, stats)
     elif event.key == pygame.K_p:
         start_game(ai_settings, screen, stats, ship, aliens, bullets)
 
@@ -39,7 +40,7 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
     '''Respond to keyboard an mouse activity.'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            sys.exit()
+            close_game(ai_settings, stats)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, ai_settings, screen, stats, ship,
                                  aliens, bullets)
@@ -292,3 +293,12 @@ def check_high_score(stats, sb):
     if stats.score > stats.high_score:
         stats.high_score = stats.score
         sb.prep_high_score()
+
+def close_game(ai_settings, stats):
+    '''save game before closing'''
+    # Save high score.
+    with open(ai_settings.data_location, 'w') as high_score:
+        json.dump(high_score, stats.high_score)
+    
+    # Close game.
+    sys.exit()

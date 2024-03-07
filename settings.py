@@ -26,6 +26,9 @@ class Settings():
         # Score Multiplier
         self.score_scale = 1.15
 
+        # save data file location.
+        self.data_location = "saves/save_data.json"
+
         self.initialize_dynamic_settings()
 
     def initialize_dynamic_settings(self):

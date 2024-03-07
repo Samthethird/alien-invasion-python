@@ -46,10 +46,6 @@ class Scoreboard():
         self.high_score_image_rect.centerx = self.screen_rect.centerx
         self.high_score_image_rect.top = self.screen_rect.top
 
-        # Save high score.
-        with open("saves/save_data.txt", 'w') as high_score:
-            high_score.write(str(self.stats.high_score))
-
     def show_score(self):
         '''Draw scores and ships to the screen'''
         self.screen.blit(self.score_image, self.score_rect)
