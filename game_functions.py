@@ -1,9 +1,11 @@
-import sys
-import pygame
 from bullet import Bullet
 from alien import Alien
 from time import sleep
 from ship import Ship
+import pygame
+import sys
+
+pygame.mixer.init()
 
 def check_keydown_events(event, ai_settings, screen, stats, ship, aliens, bullets):
     '''Respond to key presses.'''
@@ -25,6 +27,9 @@ def fire_bullet(ai_settings, screen, ship, bullets):
         new_bullet = Bullet(ai_settings, screen, ship)
         bullets.add(new_bullet)
 
+        #initiate sound effect.
+        bullet_s = pygame.mixer.Sound("sound_effects/ship_shoot.wav")
+        bullet_s.play()
 
 def check_keyup_events(event, ship):
     '''Respond to key releases.'''
@@ -51,14 +56,13 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
                               bullets, mouse_x, mouse_y)
 
 
-
 def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens, 
                       bullets, mouse_x, mouse_y):
     '''Start a game when the player hits the play button.'''
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked:
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets)
-
+        stats.game_counter += 1
 
 def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets):
     if not stats.game_active:
@@ -104,6 +108,8 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
 
         # Draw the main menu.
         create_menu(ai_settings, screen)
+        high_score_beat_menu(stats, sb)
+        
 
     # Draw score information.
     sb.show_score()
@@ -150,6 +156,11 @@ def add_score(ai_settings, stats, sb, collisions):
 
 def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens):
         '''proceed to the next level.'''
+        # initate sound effect
+        new_level_s = pygame.mixer.Sound("sound_effects/next_level.wav")
+        new_level_s.set_volume(0.2)
+        new_level_s.play()
+
         bullets.empty()
         ai_settings.increase_speed()
         create_fleet(ai_settings, screen, ship, aliens)
@@ -158,6 +169,9 @@ def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens):
         stats.level += 1
         sb.prep_level()
         
+        # pause
+        sleep(0.5)
+
 
 def get_number_aliens_x(ai_settings, alien_width):
     '''Determine the number of aliens that fit in a row.'''
@@ -220,11 +234,16 @@ def ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets):
         next_life(ai_settings, stats, sb, screen, ship, aliens, bullets)
     else:
         stats.game_active = False
+        stats.game_over_s = True
         pygame.mouse.set_visible(True)
 
 
 def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets):
     '''go to next ship and reset level'''
+    alien_hit_s = pygame.mixer.Sound("sound_effects/ship_hit.wav")
+    alien_hit_s.set_volume(0.2)
+    alien_hit_s.play()
+
     # Decrement ships left.
     stats.ships_left -= 1
 
@@ -307,6 +326,21 @@ def check_high_score(stats, sb):
         stats.high_score = stats.score
         sb.prep_high_score()
 
+        # Play sound effect once.
+        if stats.run_high_score_s:
+
+            # Initiate sound effect.
+            hs_file_name = "sound_effects/broke_high_score.wav"
+            high_score_borke_s = pygame.mixer.Sound(hs_file_name)
+            high_score_borke_s.set_volume(0.5)
+            high_score_borke_s.play()
+
+            # beat high score.
+            stats.high_score_beat = True
+
+            # Finish loop.
+            stats.run_high_score_s = False
+
 
 def close_game(ai_settings, stats):
     '''save game before closing'''
@@ -316,3 +350,27 @@ def close_game(ai_settings, stats):
     
     # Close game.
     sys.exit()
+
+
+def high_score_beat_menu(stats, sb):
+    '''if highscore beat display achivement and sound-effect.'''
+    if not stats.game_active:
+        sb.prep_achivement()
+        sb.draw_achivement()
+
+    if not stats.game_active and stats.game_over_s and stats.high_score_beat:
+        # initiate wining audio
+        hg_beat_s = pygame.mixer.Sound("sound_effects/won.mp3")
+        hg_beat_s.set_volume(0.2)
+        hg_beat_s.play()
+
+        # ending loop
+        stats.game_over_s = False
+
+    elif not stats.game_active and stats.game_over_s:
+        lost_s = pygame.mixer.Sound("sound_effects/lose.mp3")
+        lost_s.set_volume(0.2)
+        lost_s.play()
+
+        # ending loop
+        stats.game_over_s = False

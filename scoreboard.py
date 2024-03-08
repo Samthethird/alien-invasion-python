@@ -60,6 +60,32 @@ class Scoreboard():
         self.level_image_rect.right = self.score_rect.right
         self.level_image_rect.top = self.score_rect.bottom + 10
 
+    def prep_achivement(self):
+        '''render and position "achivement"'''
+        # determine whether player won or not.
+        achivement_str = ""
+        if self.stats.high_score_beat:
+            achivement_str = "YOU BEAT YOUR HIGH-SCORE!!!"
+        elif not self.stats.high_score_beat and self.stats.game_counter > 0:
+            achivement_str = "YOU LOST!"
+        
+        # render image.
+        if  achivement_str == "YOU LOST!":
+            self.achivement_image = self.font.render(achivement_str, True,
+                                            (160, 4, 8), self.ai_settings.bg_color)
+        else:
+            self.achivement_image = self.font.render(achivement_str, True,
+                                                    (17, 93, 51), self.ai_settings.bg_color)
+        
+        # position the text
+        self.achivement_image_rect = self.achivement_image.get_rect()
+        self.achivement_image_rect.top = self.high_score_image_rect.bottom + 10
+        self.achivement_image_rect.centerx = self.high_score_image_rect.centerx
+
+        
+    def draw_achivement(self):
+        self.screen.blit(self.achivement_image, self.achivement_image_rect)
+
     def prep_ships(self):
         '''Show the amount of lives left.'''
         self.ships = Group()
@@ -74,3 +100,6 @@ class Scoreboard():
         self.prep_high_score()
         self.prep_level()
         self.prep_ships()
+        self.prep_achivement()
+
+        

@@ -7,9 +7,11 @@ from button import Button
 from ship import Ship
 import pygame
 
+
 def run_game():
     '''Initialize pygame, Settings and screen object.'''
     pygame.init()
+    pygame.mixer.init()
     ai_settings = Settings()
     screen = pygame.display.set_mode(
         (ai_settings.screen_width, ai_settings.screen_height))
@@ -38,7 +40,7 @@ def run_game():
             ship.update()
             gf.update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets)
             gf.update_aliens(ai_settings, stats, sb, screen, ship, aliens, bullets)
-
+        
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
                          play_button)
 

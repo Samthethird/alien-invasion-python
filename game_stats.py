@@ -19,3 +19,7 @@ class GameStats():
         self.ships_left = self.ai_settings.ship_limit
         self.score = 0
         self.level = 1
+        self.run_high_score_s = True
+        self.game_over_s= False
+        self.high_score_beat = False
+        self.game_counter = 0
