@@ -4,7 +4,6 @@ from bullet import Bullet
 from alien import Alien
 from time import sleep
 from ship import Ship
-import json
 
 def check_keydown_events(event, ai_settings, screen, stats, ship, aliens, bullets):
     '''Respond to key presses.'''
@@ -74,10 +73,7 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets):
         stats.game_active = True
 
         # Reset scoreboard images.
-        sb.prep_score()
-        sb.prep_high_score()
-        sb.prep_level()
-        sb.prep_ships()
+        sb.prep_images()
 
         # Empty aliens and bullets.
         aliens.empty()
@@ -95,7 +91,6 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
     screen.fill(ai_settings.bg_color)
 
     if stats.game_active:
-
         # Redraw all the bullets behind ship and alliens.
         for bullet in bullets.sprites():
             bullet.draw_bullet()
@@ -110,7 +105,7 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
         # Draw the main menu.
         create_menu(ai_settings, screen)
 
-    # Draw score informatio.
+    # Draw score information.
     sb.show_score()
 
     # Display the most recent screen.
@@ -138,6 +133,23 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
 
     if len(aliens) == 0:
         '''If  entire fleet is destroyed, go to new level'''
+        next_level(ai_settings, screen, stats, sb, ship, bullets, aliens)
+    
+    # increase score if alien hit.
+    add_score(ai_settings, stats, sb, collisions)
+
+
+def add_score(ai_settings, stats, sb, collisions):
+    if collisions:
+        '''add score and check if high score is broken'''
+        for aliens in collisions.values():
+            stats.score += ai_settings.alien_points * len(aliens)
+            sb.prep_score()
+        check_high_score(stats, sb)
+
+
+def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens):
+        '''proceed to the next level.'''
         bullets.empty()
         ai_settings.increase_speed()
         create_fleet(ai_settings, screen, ship, aliens)
@@ -146,11 +158,6 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
         stats.level += 1
         sb.prep_level()
         
-    if collisions:
-        for aliens in collisions.values():
-            stats.score += ai_settings.alien_points * len(aliens)
-            sb.prep_score()
-        check_high_score(stats, sb)
 
 def get_number_aliens_x(ai_settings, alien_width):
     '''Determine the number of aliens that fit in a row.'''
@@ -210,27 +217,32 @@ def change_fleet_direction(ai_settings, aliens):
 def ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets):
     '''Respond properly if the ship is hit.'''
     if stats.ships_left > 1:
-        # Decrement ships left.
-        stats.ships_left -= 1
-
-        # Update scoreboard ships
-        sb.prep_ships()
-
-        # Empty the groups of aliens and bullets.
-        aliens.empty()
-        bullets.empty()
-
-        # Create new feet and and center ship.
-        create_fleet(ai_settings, screen, ship, aliens)
-        ship.center_ship()
-
-        # Pause.
-        sleep(0.5)
+        next_life(ai_settings, stats, sb, screen, ship, aliens, bullets)
     else:
         stats.game_active = False
         pygame.mouse.set_visible(True)
 
-        
+
+def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets):
+    '''go to next ship and reset level'''
+    # Decrement ships left.
+    stats.ships_left -= 1
+
+    # Update scoreboard ships
+    sb.prep_ships()
+
+    # Empty the groups of aliens and bullets.
+    aliens.empty()
+    bullets.empty()
+
+    # Create new feet and and center ship.
+    create_fleet(ai_settings, screen, ship, aliens)
+    ship.center_ship()
+
+    # Pause.
+    sleep(0.5)
+
+
 def check_aliens_bottom(ai_settings, stats, sb, screen, ship, aliens, bullets):
     '''Check for any aliens that reached the bottom of the screen.'''
     screen_rect = screen.get_rect()
@@ -288,11 +300,13 @@ def create_menu_bullet(ai_settings, screen):
     rect.y = 400
     pygame.draw.rect(screen, ai_settings.bullet_color, rect)
 
+
 def check_high_score(stats, sb):
     '''Check to see if high score has been broken.'''
     if stats.score > stats.high_score:
         stats.high_score = stats.score
         sb.prep_high_score()
+
 
 def close_game(ai_settings, stats):
     '''save game before closing'''
@@ -302,4 +316,3 @@ def close_game(ai_settings, stats):
     
     # Close game.
     sys.exit()
-
