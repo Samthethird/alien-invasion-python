@@ -5,19 +5,15 @@ from ship import Ship
 import pygame
 import sys
 
-# Initialize pygame.mixer for sounds.
-pygame.mixer.init()
-
-
 def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
-                 bullets):
+                 bullets, sound):
     '''Respond to keyboard an mouse activity.'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             close_game(ai_settings, stats)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, ai_settings, screen, stats, ship,
-                                 aliens, bullets)
+                                 aliens, bullets, sound)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -43,14 +39,14 @@ def check_keyup_events(event, ship):
         ship.moving_left = False
 
 
-def check_keydown_events(event, ai_settings, screen, stats, ship, aliens, bullets):
+def check_keydown_events(event, ai_settings, screen, stats, ship, aliens, bullets, sound):
     '''Respond to key presses.'''
     if event.key == pygame.K_d:
         ship.moving_right = True
     elif event.key == pygame.K_a:
         ship.moving_left = True
     elif event.key == pygame.K_SPACE:
-        fire_bullet(ai_settings, screen, ship, bullets)
+        fire_bullet(ai_settings, screen, ship, bullets, sound)
     elif event.key == pygame.K_q:
         close_game(ai_settings, stats)
     elif event.key == pygame.K_p:
@@ -92,7 +88,7 @@ def close_game(ai_settings, stats):
 
 
 def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
-                  play_button):
+                  play_button, sound):
     '''Update the images on screen and flip to a new screen.'''
     # Redraw the screen during each pass through the loop.
     screen.fill(ai_settings.bg_color)
@@ -111,7 +107,7 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
 
         # Draw the main menu.
         create_menu(ai_settings, screen)
-        high_score_beat_menu(stats, sb)
+        high_score_beat_menu(stats, sb, sound)
         
     # Draw score information.
     sb.show_score()
@@ -152,31 +148,28 @@ def create_menu_bullet(ai_settings, screen):
     pygame.draw.rect(screen, ai_settings.bullet_color, rect)
 
 
-def high_score_beat_menu(stats, sb):
+def high_score_beat_menu(stats, sb, sound):
     '''if highscore beat display achivement and sound-effect.'''
     if not stats.game_active:
         sb.prep_achivement()
         sb.draw_achivement()
 
     if not stats.game_active and stats.game_over_s and stats.high_score_beat:
-        # initiate wining audio
-        hg_beat_s = pygame.mixer.Sound("sound_effects/won.mp3")
-        hg_beat_s.set_volume(0.2)
-        hg_beat_s.play()
+        # Initiate winning audio.
+        sound.high_score_beat()
 
         # ending loop
         stats.game_over_s = False
 
     elif not stats.game_active and stats.game_over_s:
-        lost_s = pygame.mixer.Sound("sound_effects/lose.mp3")
-        lost_s.set_volume(0.2)
-        lost_s.play()
+        # Initiate losing audio.
+        sound.high_score_not_beat()
 
         # ending loop
         stats.game_over_s = False
 
 
-def fire_bullet(ai_settings, screen, ship, bullets):
+def fire_bullet(ai_settings, screen, ship, bullets, sound):
     '''Make a bullet if limit not reached.'''
     # Create a bullet and add it to the bullets group.
     if len(bullets) < ai_settings.bullets_allowed:
@@ -184,9 +177,7 @@ def fire_bullet(ai_settings, screen, ship, bullets):
         bullets.add(new_bullet)
 
         #initiate sound effect.
-        bullet_s = pygame.mixer.Sound("sound_effects/ship_shoot.wav")
-        bullet_s.play()
-
+        sound.fire_bullet()
 
 def update_aliens(ai_settings, stats, sb, screen, ship, aliens, bullets):
     '''
@@ -244,7 +235,7 @@ def ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets):
         pygame.mouse.set_visible(True)
 
 
-def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets,):
+def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
     '''Update position of bullets and remove old ones.'''
     # Update bullet positions
     bullets.update()
@@ -254,10 +245,10 @@ def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets,):
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
 
-    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens)
+    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound)
 
 
-def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens):
+def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
     '''Respond to bullet/alien collisions.'''
 
     # Remove any bullet and alines that have collided
@@ -268,19 +259,19 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
         next_level(ai_settings, screen, stats, sb, ship, bullets, aliens)
     
     # increase score if alien hit.
-    add_score(ai_settings, stats, sb, collisions)
+    add_score(ai_settings, stats, sb, collisions, sound)
 
 
-def add_score(ai_settings, stats, sb, collisions):
+def add_score(ai_settings, stats, sb, collisions, sound):
     if collisions:
         '''add score and check if high score is broken'''
         for aliens in collisions.values():
             stats.score += ai_settings.alien_points * len(aliens)
             sb.prep_score()
-        check_high_score(stats, sb)
+        check_high_score(stats, sb, sound)
 
 
-def check_high_score(stats, sb):
+def check_high_score(stats, sb, sound):
     '''Check to see if high score has been broken.'''
     if stats.score > stats.high_score:
         stats.high_score = stats.score
@@ -290,10 +281,7 @@ def check_high_score(stats, sb):
         if stats.run_high_score_s:
 
             # Initiate sound effect.
-            hs_file_name = "sound_effects/broke_high_score.wav"
-            high_score_borke_s = pygame.mixer.Sound(hs_file_name)
-            high_score_borke_s.set_volume(0.5)
-            high_score_borke_s.play()
+            sound.high_score_broke()
 
             # beat high score.
             stats.high_score_beat = True
