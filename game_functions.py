@@ -12,7 +12,7 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
         if event.type == pygame.QUIT:
             close_game(ai_settings, stats)
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, ai_settings, screen, stats, ship,
+            check_keydown_events(event, ai_settings, screen, stats, sb, ship,
                                  aliens, bullets, sound)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
@@ -24,7 +24,7 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
 
 def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens, 
                       bullets, mouse_x, mouse_y):
-    '''Start a game when the player hits the play button.'''
+    '''Start the game when the player hits the play button.'''
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked:
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets)
@@ -39,7 +39,7 @@ def check_keyup_events(event, ship):
         ship.moving_left = False
 
 
-def check_keydown_events(event, ai_settings, screen, stats, ship, aliens, bullets, sound):
+def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
     '''Respond to key presses.'''
     if event.key == pygame.K_d:
         ship.moving_right = True
@@ -50,7 +50,7 @@ def check_keydown_events(event, ai_settings, screen, stats, ship, aliens, bullet
     elif event.key == pygame.K_q:
         close_game(ai_settings, stats)
     elif event.key == pygame.K_p:
-        start_game(ai_settings, screen, stats, ship, aliens, bullets)
+        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, )
 
 
 def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets):
@@ -77,18 +77,8 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets):
         ship.center_ship()
 
 
-def close_game(ai_settings, stats):
-    '''save game before closing'''
-    # Save high score.
-    with open(ai_settings.data_location, 'w') as high_score:
-        high_score.write(str(stats.high_score))
-    
-    # Close game.
-    sys.exit()
-
-
 def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
-                  play_button, sound):
+                  play_button, sound, menu_art):
     '''Update the images on screen and flip to a new screen.'''
     # Redraw the screen during each pass through the loop.
     screen.fill(ai_settings.bg_color)
@@ -106,8 +96,8 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
         play_button.draw_button()
 
         # Draw the main menu.
-        create_menu(ai_settings, screen)
-        high_score_beat_menu(stats, sb, sound)
+        menu_art.create_menu_art()
+        display_menu_achivement(stats, sb, sound)
         
     # Draw score information.
     sb.show_score()
@@ -116,56 +106,21 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
     pygame.display.flip()
 
 
-def create_menu(ai_settings, screen):
-    '''Make the main menu art.'''
-    create_menu_alien(ai_settings, screen)
-    create_menu_bullet(ai_settings, screen)
-    create_menu_ship(ai_settings, screen)
-
-
-def create_menu_alien(ai_settings, screen):
-    '''Create an alien for the main menu art.'''
-    solo_alien = Alien(ai_settings, screen)
-    solo_alien.rect.x = 200
-    solo_alien.rect.y = 250
-    solo_alien.blitme()
-
-
-def create_menu_ship(ai_settings, screen):
-    '''Create a ship for the amin menu art.'''
-    solo_ship = Ship(ai_settings, screen)
-    solo_ship.rect.x = 200
-    solo_ship.rect.y = 470
-    solo_ship.blitme()
-
-
-def create_menu_bullet(ai_settings, screen):
-    '''Create a bullet for the main menu art.'''
-    rect = pygame.Rect(0, 0, ai_settings.bullet_width,
-                       ai_settings.bullet_height)
-    rect.x = 230
-    rect.y = 400
-    pygame.draw.rect(screen, ai_settings.bullet_color, rect)
-
-
-def high_score_beat_menu(stats, sb, sound):
-    '''if highscore beat display achivement and sound-effect.'''
+def display_menu_achivement(stats, sb, sound):
+    '''display achivement and game ending sound-effect.'''
     if not stats.game_active:
         sb.prep_achivement()
         sb.draw_achivement()
 
-    if not stats.game_active and stats.game_over_s and stats.high_score_beat:
-        # Initiate winning audio.
-        sound.high_score_beat()
+        if  stats.game_over_s and stats.high_score_beat:
+            # Initiate winning audio.
+            sound.high_score_beat()
 
-        # ending loop
-        stats.game_over_s = False
+        elif stats.game_over_s:
+            # Initiate losing audio.
+            sound.high_score_not_beat()
 
-    elif not stats.game_active and stats.game_over_s:
-        # Initiate losing audio.
-        sound.high_score_not_beat()
-
-        # ending loop
+        # set sound to played.
         stats.game_over_s = False
 
 
@@ -179,20 +134,21 @@ def fire_bullet(ai_settings, screen, ship, bullets, sound):
         #initiate sound effect.
         sound.fire_bullet()
 
-def update_aliens(ai_settings, stats, sb, screen, ship, aliens, bullets):
+
+def update_aliens(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
     '''
     Check if any alien has reached an edge then change
-    fleet direction, and check for bottomm and ship collissions.
+    fleet direction, and check for bottom and ship collisions.
     '''
     check_fleet_edges(ai_settings, aliens)
     aliens.update()
 
-    # Detecting ship-alien collisison.
+    # Detecting ship-alien collisions.
     if pygame.sprite.spritecollideany(ship, aliens):
-        ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets)
+        ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
     
     # Look for aliens hitting the bottom of the screen.
-    check_aliens_bottom(ai_settings, stats, sb, screen, ship, aliens, bullets)
+    check_aliens_bottom(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
 
 
 def check_fleet_edges(ai_settings, aliens):
@@ -209,30 +165,53 @@ def change_fleet_direction(ai_settings, aliens):
         alien.rect.y += ai_settings.fleet_drop_speed
     ai_settings.fleet_direction *= -1
 
-def check_aliens_bottom(ai_settings, stats, sb, screen, ship, aliens, bullets):
+
+def check_aliens_bottom(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
     '''Check for any aliens that reached the bottom of the screen.'''
     screen_rect = screen.get_rect()
     for alien in aliens.sprites():
         if alien.rect.bottom >= screen_rect.bottom:
             '''Respond as if the ship is hit.'''
-            ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets)
+            ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
             break
 
 
-def ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets):
+def ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
     '''Respond properly if the ship is hit.'''
     if stats.ships_left > 1:
-        next_life(ai_settings, stats, sb, screen, ship, aliens, bullets)
+        next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
     else:
-        alien_hit_s = pygame.mixer.Sound("sound_effects/ship_hit.wav")
-        alien_hit_s.set_volume(0.2)
-        alien_hit_s.play()
+        # Initiate hit audio.
+        sound.ship_hit()
 
-        # pause
+        # pause, finish game, activate gameover sound and make cursor visable.
         sleep(0.5)
         stats.game_active = False
         stats.game_over_s = True
         pygame.mouse.set_visible(True)
+
+
+def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
+    '''go to next ship and reset level'''
+    # initiate hit audio
+    sound.ship_hit()
+
+    # Decrement ships left.
+    stats.ships_left -= 1
+
+    # Update scoreboard ships
+    sb.prep_ships()
+
+    # Empty the groups of aliens and bullets.
+    aliens.empty()
+    bullets.empty()
+
+    # Create new fleet and and center ship.
+    create_fleet(ai_settings, screen, ship, aliens)
+    ship.center_ship()
+
+    # Pause.
+    sleep(0.5)
 
 
 def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
@@ -251,15 +230,30 @@ def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
 def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
     '''Respond to bullet/alien collisions.'''
 
-    # Remove any bullet and alines that have collided
+    # Remove any bullets and aliens that have collided.
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
 
     if len(aliens) == 0:
         '''If  entire fleet is destroyed, go to new level'''
-        next_level(ai_settings, screen, stats, sb, ship, bullets, aliens)
+        next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound)
     
     # increase score if alien hit.
     add_score(ai_settings, stats, sb, collisions, sound)
+
+
+def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
+        '''proceed to the next level.'''
+        # initate next level sound effect.
+        sound.next_level()
+
+        # Empty bullets and increase game speed
+        bullets.empty()
+        ai_settings.increase_speed()
+        create_fleet(ai_settings, screen, ship, aliens)
+
+        # Increase and show level.
+        stats.level += 1
+        sb.prep_level()
 
 
 def add_score(ai_settings, stats, sb, collisions, sound):
@@ -276,59 +270,14 @@ def check_high_score(stats, sb, sound):
     if stats.score > stats.high_score:
         stats.high_score = stats.score
         sb.prep_high_score()
+        stats.high_score_beat = True
 
         # Play sound effect once.
-        if stats.run_high_score_s:
-
-            # Initiate sound effect.
+        if not stats.run_high_score_s:
             sound.high_score_broke()
 
-            # beat high score.
-            stats.high_score_beat = True
-
             # Finish loop.
-            stats.run_high_score_s = False
-
-
-def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens):
-        '''proceed to the next level.'''
-        # initate sound effect
-        new_level_s = pygame.mixer.Sound("sound_effects/next_level.wav")
-        new_level_s.set_volume(0.2)
-        new_level_s.play()
-
-        bullets.empty()
-        ai_settings.increase_speed()
-
-        create_fleet(ai_settings, screen, ship, aliens)
-
-        # Increase level.
-        stats.level += 1
-        sb.prep_level()
-
-
-def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets):
-    '''go to next ship and reset level'''
-    alien_hit_s = pygame.mixer.Sound("sound_effects/ship_hit.wav")
-    alien_hit_s.set_volume(0.2)
-    alien_hit_s.play()
-
-    # Decrement ships left.
-    stats.ships_left -= 1
-
-    # Update scoreboard ships
-    sb.prep_ships()
-
-    # Empty the groups of aliens and bullets.
-    aliens.empty()
-    bullets.empty()
-
-    # Create new feet and and center ship.
-    create_fleet(ai_settings, screen, ship, aliens)
-    ship.center_ship()
-
-    # Pause.
-    sleep(0.5)
+            stats.run_high_score_s = True
 
 
 def create_fleet(ai_settings, screen, ship,  aliens):
@@ -369,3 +318,13 @@ def create_alien(ai_settings, screen, aliens, alien_number, row_number):
     alien.rect.x = alien.x
     alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
     aliens.add(alien) 
+
+
+def close_game(ai_settings, stats):
+    '''save game before closing'''
+    # Save high score.
+    with open(ai_settings.data_location, 'w') as high_score:
+        high_score.write(str(stats.high_score))
+    
+    # Close game.
+    sys.exit()

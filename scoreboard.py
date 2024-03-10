@@ -20,6 +20,22 @@ class Scoreboard():
         # Preapare initial score images.
         self.prep_images()
 
+    def prep_images(self):
+        """Preping all images"""
+        self.prep_score()
+        self.prep_high_score()
+        self.prep_level()
+        self.prep_achivement()
+        self.prep_ships()
+
+    def show_score(self):
+        '''Draw all scores and ships to the screen'''
+        self.screen.blit(self.score_image, self.score_rect)
+        self.screen.blit(self.high_score_image, self.high_score_image_rect)
+        self.screen.blit(self.level_image, self.level_image_rect)
+        self.ships.draw(self.screen)
+
+
     def prep_score(self):
         '''Trun the score into a rendered image.'''
         rounded_score = round(self.stats.score, -1)
@@ -37,18 +53,11 @@ class Scoreboard():
         high_score_str = "{:,}".format(high_score)
         self.high_score_image = self.font.render(high_score_str, True, self.text_color, 
                                                  self.ai_settings.bg_color)
-
+        
         # position high score.
         self.high_score_image_rect = self.high_score_image.get_rect()
         self.high_score_image_rect.centerx = self.screen_rect.centerx
         self.high_score_image_rect.top = self.screen_rect.top
-
-    def show_score(self):
-        '''Draw scores and ships to the screen'''
-        self.screen.blit(self.score_image, self.score_rect)
-        self.screen.blit(self.high_score_image, self.high_score_image_rect)
-        self.screen.blit(self.level_image, self.level_image_rect)
-        self.ships.draw(self.screen)
 
     def prep_level(self):
         '''Turn level into a rendered image.'''
@@ -62,22 +71,10 @@ class Scoreboard():
 
     def prep_achivement(self):
         '''render and position "achivement"'''
-        # determine whether player won or not.
-        achivement_str = ""
-        if self.stats.high_score_beat:
-            achivement_str = "YOU BEAT YOUR HIGH-SCORE!!!"
-        elif not self.stats.high_score_beat and self.stats.game_counter > 0:
-            achivement_str = "YOU LOST!"
-        
-        # render image.
-        if  achivement_str == "YOU LOST!":
-            self.achivement_image = self.font.render(achivement_str, True,
-                                            (160, 4, 8), self.ai_settings.bg_color)
-        else:
-            self.achivement_image = self.font.render(achivement_str, True,
-                                                    (17, 93, 51), self.ai_settings.bg_color)
-        
-        # position the text
+        # Determine text.
+        self.prep_achivement_msg()
+
+        # position the text.
         self.achivement_image_rect = self.achivement_image.get_rect()
         self.achivement_image_rect.top = self.high_score_image_rect.bottom + 10
         self.achivement_image_rect.centerx = self.high_score_image_rect.centerx
@@ -95,11 +92,22 @@ class Scoreboard():
             ship.rect.y = 10
             self.ships.add(ship)
 
-    def prep_images(self):
-        self.prep_score()
-        self.prep_high_score()
-        self.prep_level()
-        self.prep_ships()
-        self.prep_achivement()
+    def prep_achivement_msg(self):
+        # determine whether the player has won or not.
+        achivement_str = ""
+        if self.stats.game_counter == 0:
+            self.achivement_image = self.font.render(achivement_str, True,
+                            (17, 93, 51), self.ai_settings.bg_color)
 
+        elif self.stats.high_score_beat:
+            achivement_str = "YOU BEAT YOUR HIGH-SCORE!!!"
+            # if won render green.
+            self.achivement_image = self.font.render(achivement_str, True,
+                                        (17, 93, 51), self.ai_settings.bg_color)
+
+        elif not self.stats.high_score_beat and self.stats.game_counter > 0:
+            achivement_str = "YOU LOST!"
+            # if you lost render red.
+            self.achivement_image = self.font.render(achivement_str, True,
+                                    (160, 4, 8), self.ai_settings.bg_color)
         

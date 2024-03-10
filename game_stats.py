@@ -18,10 +18,23 @@ class GameStats():
             
     def reset_stats(self):
         '''A method for stats that reset each game.'''
+        # Lives remaining.
         self.ships_left = self.ai_settings.ship_limit
+
+        # Current score.
         self.score = 0
+        
+        # Current games level.
         self.level = 1
-        self.run_high_score_s = True
+
+        # Whether high_score sound effect has been played.
+        self.run_high_score_s = False
+
+        # Whether game over sound has been played.
         self.game_over_s= False
+
+        # Whether the high_score has already been broken.
         self.high_score_beat = False
+
+        # How many time the game has run in the currnet session.
         self.game_counter = 0

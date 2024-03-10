@@ -33,3 +33,17 @@ class Sound():
         high_score_borke_s = pygame.mixer.Sound(hs_file_name)
         high_score_borke_s.set_volume(0.5)
         high_score_borke_s.play()
+
+    def ship_hit(self):
+        # Initiate loosing life audio.
+        alien_hit_s = pygame.mixer.Sound("sound_effects/ship_hit.wav")
+        alien_hit_s.set_volume(0.2)
+        alien_hit_s.play()
+
+    def next_level(self):
+        # Initiate Next level audio.
+        new_level_s = pygame.mixer.Sound("sound_effects/next_level.wav")
+        new_level_s.set_volume(0.2)
+        new_level_s.play()
+
+
