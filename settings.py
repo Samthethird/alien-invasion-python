@@ -12,7 +12,7 @@ class Settings():
         self.ship_limit = 3 #3
         
         # Bullet settings.
-        self.bullet_width = 1200 #3
+        self.bullet_width = 3 #3
         self.bullet_height = 15 #15
         self.bullet_color = (60, 60, 60)
         self.bullets_allowed = 3 #3
@@ -29,13 +29,16 @@ class Settings():
         # save data file location.
         self.data_location = "saves/save_data.txt"
 
+        # time between each level.
+        self.break_time = 1000
+
         self.initialize_dynamic_settings()
 
     def initialize_dynamic_settings(self):
         '''Initialize settings that change throughout the game.'''
         self.ship_speed_factor = 1.5 #1.5
         self.bullet_speed_factor =3 #3
-        self.alien_speed_factor = 50 #1
+        self.alien_speed_factor = 1 #1
 
         # 1 means right and -1 vice versa.
         self.fleet_direction = 1 #1
