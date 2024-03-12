@@ -51,7 +51,9 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
         close_game(ai_settings, stats)
     elif event.key == pygame.K_p:
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
-
+    elif event.key == pygame.K_f:
+        stats.ships_left = 0
+        ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
 
 def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
     if not stats.game_active:        
