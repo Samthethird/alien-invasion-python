@@ -55,6 +55,7 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
         stats.ships_left = 0
         ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
 
+
 def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
     if not stats.game_active:        
         # Reset the games settings.
@@ -83,7 +84,7 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
 
 
 def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
-                  play_button, sound, menu_art):
+                  play_button, sound, menu_art, pu1):
     '''Update the images on screen and flip to a new screen.'''
     # Redraw the screen during each pass through the loop.
     screen.fill(ai_settings.bg_color)
@@ -95,6 +96,9 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
         
         ship.blitme()
         aliens.draw(screen)
+
+        # draw power_ups.
+        pu1.draw_power_up()
 
     # Draw the play button and the menu if the game is inactive.
     elif not stats.game_active:
@@ -348,3 +352,5 @@ def update_music(stats, sound):
         elif stats.game_active:
             sound.bg_music()
             stats.music_playing = True
+
+

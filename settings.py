@@ -17,6 +17,12 @@ class Settings():
         self.bullet_color = (60, 60, 60)
         self.bullets_allowed = 3 #3
 
+        # power up settings.
+        self.cube_width = 40
+        self.cube_height = 40
+        self.cube_color1 = (50, 0, 0)
+        self.cube_speed = 0.5
+
         # Alien settings.
         self.fleet_drop_speed = 10 #10
 
@@ -28,7 +34,7 @@ class Settings():
 
         # save data file location.
         self.data_location = "saves/save_data.txt"
-
+        
         self.initialize_dynamic_settings()
 
     def initialize_dynamic_settings(self):
