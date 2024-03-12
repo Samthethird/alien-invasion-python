@@ -6,7 +6,7 @@ class GameStats():
         '''Initialize Statistics'''
         self.ai_settings = ai_settings
         self.reset_stats()
-        self.music_stats()
+        self.reset_music()
 
         # Start Alien Invasion in an inactive state.
         self.game_active = False
@@ -39,5 +39,7 @@ class GameStats():
         # How many time the game has run in the currnet session.
         self.game_counter = 0
 
-    def music_stats(self):
+    def reset_music(self):
+        '''method for keeping track of music activity'''
+        # Whether music is currently playing or not.
         self.music_playing = False

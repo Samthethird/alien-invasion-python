@@ -6,10 +6,9 @@ class Sound():
     and music in the game.
     """
     
-    def __init__(self, stats):
+    def __init__(self):
         # Initialize the pygame sound module.
         pygame.mixer.init()
-        self.stats = stats
 
     def high_score_beat(self):
         # initiate wining audio.
@@ -47,17 +46,12 @@ class Sound():
         new_level_s.set_volume(0.6)
         new_level_s.play()
 
-    def play_music(self):
-        # Determine which music to play.
-        if not self.stats.music_playing:
-            if self.stats.game_active:
-                pygame.mixer.music.load("sound_effects/music/bg_music.mp3")
-                pygame.mixer.music.set_volume(0.3)
-                pygame.mixer.music.play(-1)
-                self.stats.music_playing = True
-            else:
-                pygame.mixer.music.load("sound_effects/music/menu_music.mp3")
-                pygame.mixer.music.set_volume(0.3)
-                pygame.mixer.music.play(-1)
-                self.stats.music_playing = True
+    def bg_music(self):
+        pygame.mixer.music.load("sound_effects/music/bg_music.mp3")
+        pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.play(-1)
 
+    def menu_music(self):
+        pygame.mixer.music.load("sound_effects/music/menu_music.mp3")
+        pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.play(-1)

@@ -57,7 +57,9 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
     if not stats.game_active:        
         # Reset the games settings.
         ai_settings.initialize_dynamic_settings()
-        stats.music_stats()
+
+        # Reset music playing state.
+        stats.reset_music()
 
         # Hide mouse cursor.
         pygame.mouse.set_visible(False)
@@ -105,8 +107,6 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
 
     # Display the most recent screen.
     pygame.display.flip()
-
-    # Initiate music.
 
 
 def display_menu_achivement(stats, sb, sound):
@@ -190,8 +190,10 @@ def ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
         # pause, finish game, activate gameover sound and make cursor visable.
         sleep(0.5)
         stats.game_active = False
-        stats.music_stats()
         stats.game_over_s = True
+        
+        # Reset music played.
+        stats.reset_music()
         pygame.mouse.set_visible(True)
 
 
@@ -334,5 +336,13 @@ def close_game(ai_settings, stats):
     sys.exit()
 
 
-def update_music(sound):
-    sound.play_music()
+def update_music(stats, sound):
+    # Determine which music to play.
+    if not stats.music_playing:
+        if not stats.game_active: 
+            sound.menu_music()
+            stats.music_playing = True
+
+        elif stats.game_active:
+            sound.bg_music()
+            stats.music_playing = True
