@@ -6,10 +6,10 @@ class GameStats():
         '''Initialize Statistics'''
         self.ai_settings = ai_settings
         self.reset_stats()
-    
+        self.music_stats()
+
         # Start Alien Invasion in an inactive state.
         self.game_active = False
-        
         # Reading high_score from save data
         self.high_score = 0
         with open(ai_settings.data_location) as high_score:
@@ -38,3 +38,6 @@ class GameStats():
 
         # How many time the game has run in the currnet session.
         self.game_counter = 0
+
+    def music_stats(self):
+        self.music_playing = False

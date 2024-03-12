@@ -19,15 +19,15 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens,
-                              bullets, mouse_x, mouse_y)
+                              bullets, mouse_x, mouse_y, sound)
             
 
 def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens, 
-                      bullets, mouse_x, mouse_y):
+                      bullets, mouse_x, mouse_y, sound):
     '''Start the game when the player hits the play button.'''
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked:
-        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets)
+        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
         stats.game_counter += 1
 
 
@@ -50,13 +50,14 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
     elif event.key == pygame.K_q:
         close_game(ai_settings, stats)
     elif event.key == pygame.K_p:
-        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, )
+        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
 
 
-def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets):
-    if not stats.game_active:
+def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
+    if not stats.game_active:        
         # Reset the games settings.
         ai_settings.initialize_dynamic_settings()
+        stats.music_stats()
 
         # Hide mouse cursor.
         pygame.mouse.set_visible(False)
@@ -104,6 +105,8 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
 
     # Display the most recent screen.
     pygame.display.flip()
+
+    # Initiate music.
 
 
 def display_menu_achivement(stats, sb, sound):
@@ -187,6 +190,7 @@ def ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
         # pause, finish game, activate gameover sound and make cursor visable.
         sleep(0.5)
         stats.game_active = False
+        stats.music_stats()
         stats.game_over_s = True
         pygame.mouse.set_visible(True)
 
@@ -328,3 +332,7 @@ def close_game(ai_settings, stats):
     
     # Close game.
     sys.exit()
+
+
+def update_music(sound):
+    sound.play_music()
