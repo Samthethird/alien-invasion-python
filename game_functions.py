@@ -1,8 +1,10 @@
+from power_up_god_bullet import GodBulletPowerUp
 from bullet import Bullet
 from alien import Alien
 from time import sleep
 from ship import Ship
 import pygame
+import random
 import sys
 
 def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
@@ -84,7 +86,7 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
 
 
 def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
-                  play_button, sound, menu_art, pu1):
+                  play_button, sound, menu_art, power_ups):
     '''Update the images on screen and flip to a new screen.'''
     # Redraw the screen during each pass through the loop.
     screen.fill(ai_settings.bg_color)
@@ -96,9 +98,12 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
         
         ship.blitme()
         aliens.draw(screen)
-
+        
         # draw power_ups.
-        pu1.draw_power_up()
+        if power_ups:
+            for power_up in power_ups.sprites():
+                power_up.draw_power_up()
+
 
     # Draw the play button and the menu if the game is inactive.
     elif not stats.game_active:
@@ -226,7 +231,7 @@ def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
     sleep(0.5)
 
 
-def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
+def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound, power_ups):
     '''Update position of bullets and remove old ones.'''
     # Update bullet positions
     bullets.update()
@@ -236,14 +241,17 @@ def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
 
-    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound)
+    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound, power_ups)
 
 
-def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
+def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound, power_ups):
     '''Respond to bullet/alien collisions.'''
 
     # Remove any bullets and aliens that have collided.
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+
+    # randomly get a powerup if alien killed.
+    get_power_up(ai_settings, screen, power_ups, collisions)
 
     if len(aliens) == 0:
         '''If  entire fleet is destroyed, go to new level'''
@@ -251,6 +259,19 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
     
     # increase score if alien hit.
     add_score(ai_settings, stats, sb, collisions, sound)
+
+
+def get_power_up(ai_settings, screen, power_ups, collisions):
+    '''Randomly drop a powerup if alien killed.'''
+    if collisions:
+        #roll a dice
+        chance = 1
+        
+        if chance == 1:
+            # if 1 drop GodBullet.
+            for alien in collisions.keys():
+                god_bullet = GodBulletPowerUp(ai_settings, screen, alien)
+                power_ups.add(god_bullet)
 
 
 def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
@@ -353,4 +374,7 @@ def update_music(stats, sound):
             sound.bg_music()
             stats.music_playing = True
 
-
+def update_power_ups(power_ups):
+    if power_ups:
+        for power_up in power_ups:
+            power_up.update_power_up()

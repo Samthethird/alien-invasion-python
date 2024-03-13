@@ -20,8 +20,9 @@ class Settings():
         # power up settings.
         self.cube_width = 40
         self.cube_height = 40
-        self.cube_color1 = (50, 0, 0)
         self.cube_speed = 0.5
+        self.cube_color1 = (70, 0, 20)
+        self.cube_color2 = (50, 0, 0)
 
         # Alien settings.
         self.fleet_drop_speed = 10 #10
