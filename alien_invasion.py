@@ -1,4 +1,3 @@
-from power_up_god_bullet import GodBulletPowerUp
 from scoreboard import Scoreboard
 from game_stats import GameStats
 from pygame.sprite import Group
@@ -30,9 +29,13 @@ def run_game():
     sound = Sound()
     menu_art = MenuArt(ai_settings, screen)
 
-    # Make a group for power_ups.
+    # Make a group for power_ups and active powers.
     power_ups = Group()
-    
+    active_powers = Group()
+
+    # Make clock.
+    clock = pygame.time.Clock()
+
     # Make a ship, a group for bullets and aliens.
     ship = Ship(ai_settings, screen)
     bullets = Group()
@@ -42,19 +45,22 @@ def run_game():
     gf.create_fleet(ai_settings, screen, ship, aliens)
 
     # Main loop for the game.
-    while True: 
+    while True:
+
         gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, 
                  bullets, sound)
-        
         if stats.game_active:
             ship.update()
             gf.update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets,
                              sound, power_ups)
-            gf.update_aliens(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
-            gf.update_power_ups(power_ups)
+            gf.update_aliens(ai_settings, stats, sb , screen, ship, aliens, bullets, sound)
+            active_powers.add(gf.update_power_ups(screen.get_rect(), ship, power_ups, active_powers))
+            gf.end_power(ai_settings, active_powers)
 
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
                          play_button, sound, menu_art, power_ups)
         gf.update_music(stats, sound)
-
+    
 run_game()
+
+

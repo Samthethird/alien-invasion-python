@@ -10,19 +10,15 @@ class Settings():
 
         # Ship setttings.
         self.ship_limit = 3 #3
-        
-        # Bullet settings.
-        self.bullet_width = 3 #3
-        self.bullet_height = 15 #15
-        self.bullet_color = (60, 60, 60)
-        self.bullets_allowed = 3 #3
 
         # power up settings.
         self.cube_width = 40
         self.cube_height = 40
         self.cube_speed = 0.5
-        self.cube_color1 = (70, 0, 20)
+        self.god_bullet_color = (70, 0, 20)
         self.cube_color2 = (50, 0, 0)
+
+        self.god_bullet_timer = 10000
 
         # Alien settings.
         self.fleet_drop_speed = 10 #10
@@ -37,12 +33,14 @@ class Settings():
         self.data_location = "saves/save_data.txt"
         
         self.initialize_dynamic_settings()
+        self.reset_god_bullet_settings()
 
     def initialize_dynamic_settings(self):
         '''Initialize settings that change throughout the game.'''
         self.ship_speed_factor = 1.5 #1.5
-        self.bullet_speed_factor =3 #3
+        self.bullet_speed_factor = 3 #3
         self.alien_speed_factor = 1 #1
+        self.cube_speed = 0.5
 
         # 1 means right and -1 vice versa.
         self.fleet_direction = 1 #1
@@ -50,10 +48,19 @@ class Settings():
         # Scorint settings.
         self.alien_points = 50
 
+    def reset_god_bullet_settings(self):
+        '''initiate settings that can be increased by powerUps.'''
+        # Bullet settings.
+        self.bullet_width = 3 #3
+        self.bullet_height = 15 #15
+        self.bullet_color = (60, 60, 60)
+        self.bullets_allowed = 3 #3
+        self.bullet_destruction = True
+
     def increase_speed(self):
         # Increase the speed settings and alien point value.
         self.ship_speed_factor *= self.speedup_scale
         self.bullet_speed_factor *= self.speedup_scale
         self.alien_speed_factor *= self.speedup_scale
-
+        self.cube_speed *= self.speedup_scale
         self.alien_points = int(self.alien_points * self.score_scale)
