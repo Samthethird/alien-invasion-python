@@ -39,6 +39,9 @@ class GameStats():
         # How many time the game has run in the currnet session.
         self.game_counter = 0
 
+        # Group for current active powers
+        self.active_powers = pygame.sprite.Group()
+
     def reset_music(self):
         '''method for keeping track of music activity'''
         # Whether music is currently playing or not.

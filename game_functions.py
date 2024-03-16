@@ -265,7 +265,7 @@ def drop_power_up(ai_settings, screen, power_ups, collisions):
     '''Randomly drop a powerup when and alien is killed.'''
     if collisions:
         #roll a dice to determine power_up drop
-        chance = random.randint(1,70)
+        chance = 1
 
         if chance == 1:
             # if dice rolled 1 drop a "GodBullet" powerup.
@@ -275,7 +275,7 @@ def drop_power_up(ai_settings, screen, power_ups, collisions):
                     power_ups.add(god_bullet_power_up)
 
 
-def update_power_ups(screen_rect, ship, power_ups, active_powers):
+def update_power_ups(screen_rect, stats, ship, power_ups, active_powers):
     '''
     if there is a power up is on screen make it move down by callling 
     its update function.
@@ -290,36 +290,34 @@ def update_power_ups(screen_rect, ship, power_ups, active_powers):
                 power_ups.remove(power_up)
 
             # check if any power ups have collided with the ship.
-            collisions, active_powers = ship_power_up_collisions(ship, power_ups, active_powers)
+            collisions = ship_power_up_collisions(stats, ship, power_ups)
             if collisions:
                 # give respective power if collisions happend.
                 power_up.give_power()
-            for active_power in active_powers:
-                return active_power
             
-    # Return an empty group if no power ups have been injeasted
-    fake_group = pygame.sprite.Group()
-    return fake_group
 
-
-def ship_power_up_collisions(ship, power_ups, active_powers):
+def ship_power_up_collisions(stats, ship, power_ups):
     '''determine collision between ship and powerup.'''
     collisions = pygame.sprite.spritecollide(ship, power_ups, True)
-    active_powers = collisions
-    return collisions, active_powers
+    activate_powers(stats, collisions)
+    return collisions
 
 
-def end_power(ai_settings, powers):
+def activate_powers(stats, collisions):
+    stats.active_powers.add(collisions)
+
+
+def end_power(ai_settings, active_powers):
     '''
     End the power of each power up recpectively 
     once their time limit has been reached.
     '''
-    if powers:
+    if active_powers:
         now = pygame.time.get_ticks()
-        for power in powers:
+        for power in active_powers:
             if now - power.start_time >= ai_settings.god_bullet_timer:
                 ai_settings.reset_god_bullet_settings()
-                powers.remove(power)
+                active_powers.remove(power)
 
 
 def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
