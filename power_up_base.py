@@ -4,7 +4,7 @@ from pygame.sprite import Sprite
 class PowerUp(Sprite):
     """A parent class for all powerups"""
 
-    def __init__(self, ai_settings, screen, alien):
+    def __init__(self, ai_settings, screen, stats, alien):
         """initialize attributes."""
         super().__init__()
         self.ai_settings = ai_settings
@@ -12,7 +12,8 @@ class PowerUp(Sprite):
         self.color = (0,0,0)
         self.alien = alien 
         self.start_time = int()
-
+        self.stats = stats
+        
         # Creat power-up rect and position it.
         self.rect = pygame.Rect(0, 0 ,self.ai_settings.cube_width,
                                 self.ai_settings.cube_height)
@@ -39,12 +40,3 @@ class PowerUp(Sprite):
     def get_start_time(self):
         '''get the time when the power was give.'''
         self.start_time = pygame.time.get_ticks()
-        self.activate_power()
-
-    def activate_power(self):
-        '''activate power state'''
-        self.power_active = True
-
-    def deactivate(self):
-        '''Deactivate power state'''
-        self.power_active = False

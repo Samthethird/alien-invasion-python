@@ -42,6 +42,9 @@ class GameStats():
         # Group for current active powers
         self.active_powers = pygame.sprite.Group()
 
+        # mode for machine gun power_up.
+        self.machine_gun_mode = False
+
     def reset_music(self):
         '''method for keeping track of music activity'''
         # Whether music is currently playing or not.

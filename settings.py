@@ -16,7 +16,7 @@ class Settings():
         self.cube_height = 40
         self.cube_speed = 0.5
         self.god_bullet_color = (70, 0, 20)
-        self.cube_color2 = (50, 0, 0)
+        self.mahcine_gun_color = (50, 0, 0)
 
         self.god_bullet_timer = 10000
 

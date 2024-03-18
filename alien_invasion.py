@@ -29,9 +29,8 @@ def run_game():
     sound = Sound()
     menu_art = MenuArt(ai_settings, screen)
 
-    # Make a group for power_ups and active powers.
+    # Make a group for power_ups .
     power_ups = Group()
-    '''stats.active_powers'''
 
     # Make a ship, a group for bullets and aliens.
     ship = Ship(ai_settings, screen)
@@ -53,11 +52,8 @@ def run_game():
             gf.update_aliens(ai_settings, stats, sb , screen, ship, aliens, bullets, sound)
             gf.update_power_ups(screen.get_rect(), stats, ship, power_ups, stats.active_powers)
             gf.end_power(ai_settings, stats.active_powers)
-            print(stats.active_powers)
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
                          play_button, sound, menu_art, power_ups)
         gf.update_music(stats, sound)
     
 run_game()
-
-

@@ -251,7 +251,7 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
     collisions = pygame.sprite.groupcollide(bullets, aliens, ai_settings.bullet_destruction, True)
 
     # randomly drop a powerup if an alien is killed.
-    drop_power_up(ai_settings, screen, power_ups, collisions)
+    drop_power_up(ai_settings, screen, stats, power_ups, collisions)
 
     if len(aliens) == 0:
         '''If  entire fleet is destroyed, go to new level'''
@@ -261,7 +261,7 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
     add_score(ai_settings, stats, sb, collisions, sound)
 
 
-def drop_power_up(ai_settings, screen, power_ups, collisions):
+def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when and alien is killed.'''
     if collisions:
         #roll a dice to determine power_up drop
@@ -271,7 +271,7 @@ def drop_power_up(ai_settings, screen, power_ups, collisions):
             # if dice rolled 1 drop a "GodBullet" powerup.
             for aliens in collisions.values():
                 for alien in aliens:
-                    god_bullet_power_up = GodBulletPowerUp(ai_settings, screen, alien)
+                    god_bullet_power_up = GodBulletPowerUp(ai_settings, screen, stats, alien)
                     power_ups.add(god_bullet_power_up)
 
 
@@ -316,7 +316,7 @@ def end_power(ai_settings, active_powers):
         now = pygame.time.get_ticks()
         for power in active_powers:
             if now - power.start_time >= ai_settings.god_bullet_timer:
-                ai_settings.reset_god_bullet_settings()
+                power.end_power()
                 active_powers.remove(power)
 
 
