@@ -16,9 +16,9 @@ class Settings():
         self.cube_height = 40
         self.cube_speed = 0.5
         self.god_bullet_color = (70, 0, 20)
-        self.mahcine_gun_color = (50, 0, 0)
+        self.machine_gun_color = (0, 0, 70)
 
-        self.god_bullet_timer = 10000
+        self.power_up_timer = 10000
 
         # Alien settings.
         self.fleet_drop_speed = 10 #10

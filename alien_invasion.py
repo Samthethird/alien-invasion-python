@@ -1,3 +1,4 @@
+from power_up_machine_gun import MachineGunPowerUp
 from power_up_god_bullet import GodBulletPowerUp
 from scoreboard import Scoreboard
 from game_stats import GameStats
@@ -45,6 +46,7 @@ def run_game():
 
     # equality instances.
     god_bullet_eq_instance = GodBulletPowerUp(ai_settings, screen, stats, alien)
+    machine_gun_eq_instance = MachineGunPowerUp(ai_settings, screen, stats, alien)
 
     # Main loop for the game.
     while True:
@@ -56,8 +58,12 @@ def run_game():
             gf.update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets,
                              sound, power_ups)
             gf.update_aliens(ai_settings, stats, sb , screen, ship, aliens, bullets, sound)
-            gf.update_power_ups(screen.get_rect(), stats, ship, power_ups, god_bullet_eq_instance)
-            gf.end_power(ai_settings, stats, stats.active_powers, god_bullet_eq_instance)
+            gf.update_power_ups(
+                screen.get_rect(), stats, ship, power_ups, god_bullet_eq_instance,
+                machine_gun_eq_instance
+                )
+            gf.end_power(ai_settings, stats, stats.active_powers, god_bullet_eq_instance, 
+                         machine_gun_eq_instance)
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
                          play_button, sound, menu_art, power_ups)
         gf.update_music(stats, sound)

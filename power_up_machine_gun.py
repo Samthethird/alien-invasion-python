@@ -12,15 +12,19 @@ class MachineGunPowerUp(PowerUp):
     def give_power(self):
         '''give the powers of machine gun to the player.'''
         self.stats.machine_gun_mode = True
-        self.shooting = False
-
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    self.shooting = True
-            elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_SPACE:
-                    self.shooting = False   
+        self.get_start_time()
+        self.ai_settings.bullets_allowed = 1000
 
     def end_power(self):
         '''end power'''
+        self.stats.machine_gun_mode = False
+        self.ai_settings.bullets_allowed = 3
+        
+    def __eq__(self, other):
+        '''return color for equality'''
+        if isinstance(other, MachineGunPowerUp):
+            return self.color == other.color
+        return False
+    
+    def __hash__(self):
+        return hash(self.color)

@@ -1,4 +1,5 @@
 from power_up_god_bullet import GodBulletPowerUp
+from power_up_machine_gun import MachineGunPowerUp
 from bullet import Bullet
 from alien import Alien
 from time import sleep
@@ -9,7 +10,7 @@ import sys
 
 def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
                  bullets, sound):
-    '''Respond to keyboard an mouse activity.'''
+    '''Respond to keyboard and mouse activity.'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             close_game(ai_settings, stats)
@@ -17,12 +18,15 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
             check_keydown_events(event, ai_settings, screen, stats, sb, ship,
                                  aliens, bullets, sound)
         elif event.type == pygame.KEYUP:
-            check_keyup_events(event, ship)
+            check_keyup_events(event, stats, ship)
+        elif stats.machine_gun_mode and stats.shooting:
+            fire_bullet(ai_settings, screen, ship, bullets, sound)
+
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens,
                               bullets, mouse_x, mouse_y, sound)
-            
+
 
 def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens, 
                       bullets, mouse_x, mouse_y, sound):
@@ -33,12 +37,14 @@ def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens,
         stats.game_counter += 1
 
 
-def check_keyup_events(event, ship):
+def check_keyup_events(event, stats, ship):
     '''Respond to key releases.'''
     if event.key == pygame.K_d:
         ship.moving_right = False
     elif event.key == pygame.K_a:
         ship.moving_left = False
+    elif event.key == pygame.K_SPACE and stats.machine_gun_mode:
+        stats.shooting = False
 
 
 def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
@@ -48,7 +54,11 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
     elif event.key == pygame.K_a:
         ship.moving_left = True
     elif event.key == pygame.K_SPACE:
-        fire_bullet(ai_settings, screen, ship, bullets, sound)
+        if stats.machine_gun_mode:
+            stats.shooting = True
+        else:
+            fire_bullet(ai_settings, screen, ship, bullets, sound)
+
     elif event.key == pygame.K_q:
         close_game(ai_settings, stats)
     elif event.key == pygame.K_p:
@@ -264,18 +274,28 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
 def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when and alien is killed.'''
     if collisions:
-        #roll a dice to determine power_up drop
-        chance = 1
+        #roll a dice to determine power_up dropped.
+        chance = 2
 
         if chance == 1:
             # if dice rolled 1 drop a "GodBullet" powerup.
             for aliens in collisions.values():
                 for alien in aliens:
                     god_bullet_power_up = GodBulletPowerUp(ai_settings, screen, stats, alien)
+                    # add it to the power_ups on screen, group.
                     power_ups.add(god_bullet_power_up)
 
+        if chance == 2:
+            # if dice rolled 2 drop a "mahcine_gun" powerup.
+            for aliens in collisions.values():
+                for alien in aliens:
+                    machine_gun_power_up = MachineGunPowerUp(ai_settings, screen, stats, alien)
+                    # add it to the power_ups on screen. 
+                    power_ups.add(machine_gun_power_up)
 
-def update_power_ups(screen_rect, stats, ship, power_ups, god_bullet_eq_instance):
+
+def update_power_ups(screen_rect, stats, ship, power_ups, god_bullet_eq_instance,
+                     machine_gun_eq_instance):
     '''
     if there is a power up is on screen make it move down by callling 
     its update function.
@@ -284,52 +304,110 @@ def update_power_ups(screen_rect, stats, ship, power_ups, god_bullet_eq_instance
     if power_ups:
         for power_up in power_ups:
             power_up.update_power_up()
+
             # deleting missed power_ups.
-            if power_up.rect.top >= screen_rect.bottom:
-                power_ups.remove(power_up)
+            check_missed_power_up(screen_rect, power_up, power_ups)
 
             # check if any power ups have collided with the ship.
-            collisions = ship_power_up_collisions(stats, ship, power_ups, god_bullet_eq_instance)
-            if collisions:
-                # give respective power if collisions happend.
-                power_up.give_power()
+            collisions = ship_power_up_collisions(ship, power_ups)
 
-                # set god bullet to active.
-                if power_up == god_bullet_eq_instance:
-                    stats.god_bullet_active = True
+            # add power if collisions happened.
+            bestow_power(stats, power_up, collisions, god_bullet_eq_instance, 
+                 machine_gun_eq_instance)
 
                  
-def ship_power_up_collisions(stats, ship, power_ups, god_bullet_eq_instance):
+def check_missed_power_up(screen_rect, power_up, power_ups):
+    '''deleting missed power_ups.'''
+    if power_up.rect.top >= screen_rect.bottom:
+        power_ups.remove(power_up)
+
+
+def bestow_power(stats, power_up, collisions, god_bullet_eq_instance, 
+                 machine_gun_eq_instance):
+    '''add power if collision happend.'''
+    if collisions:
+        # activate flags.
+        activate_power_up_flags(stats, power_up, god_bullet_eq_instance, machine_gun_eq_instance)
+
+        # add power_up to activates powers
+        add_power_to_activated_powers(stats, collisions, god_bullet_eq_instance, 
+                                      machine_gun_eq_instance)
+        
+        # give_power.
+        power_up.give_power()
+        
+
+def ship_power_up_collisions(ship, power_ups):
     '''determine collision between ship and powerup.'''
     collisions = pygame.sprite.spritecollide(ship, power_ups, True)
-    activate_powers(stats, collisions, god_bullet_eq_instance)
     return collisions
 
-def activate_powers(stats, collisions, god_bullet_eq_instance):
+
+def activate_power_up_flags(stats, power_up, god_bullet_eq_instance, machine_gun_eq_instance):
+    # inform that God_bullet mode is active.
+    if power_up == god_bullet_eq_instance:
+        stats.god_bullet_active = True
+    # inform that machine gun mode is active.
+    elif power_up == machine_gun_eq_instance:
+        stats.machine_gun_active = True
+
+
+def add_power_to_activated_powers(stats, collisions, god_bullet_eq_instance, machine_gun_eq_instance):
+    '''if power up is already active reset timer else add it to active powers.'''
     for collision in collisions:
+        
+        # god_bullet.
         if collision == god_bullet_eq_instance and stats.god_bullet_active:
             stats.reset_god_bullet_timer = True
         else:
             stats.active_powers.add(collision)
 
+        # machine_gun.
+        if collision == machine_gun_eq_instance and stats.machine_gun_active:
+            stats.reset_machine_gun_timer = True
+        else:
+            stats.active_powers.add(collision)
 
-def end_power(ai_settings, stats, active_powers, god_bullet_eq_instance):
+
+def end_power(ai_settings, stats, active_powers, god_bullet_eq_instance, machine_gun_eq_instance):
     '''
     End the power of each power up recpectively 
     once their time limit has been reached.
     '''
     if active_powers:
+        # get_current time
         now = pygame.time.get_ticks()
-        for power in active_powers:
-            if power == god_bullet_eq_instance and stats.reset_god_bullet_timer:
-                power.get_start_time()
-                stats.reset_god_bullet_timer = False
 
-            if now - power.start_time >= ai_settings.god_bullet_timer:
+        for power in active_powers:
+            # if a already have a power_up reset its timer.
+            reset_timers(stats, power, god_bullet_eq_instance, machine_gun_eq_instance)
+
+            if now - power.start_time >= ai_settings.power_up_timer:
                 power.end_power()
-                if power == god_bullet_eq_instance:
-                    stats.god_bullet_active = False
+                deactivate_power_up_flags(stats, power, god_bullet_eq_instance, machine_gun_eq_instance)
                 active_powers.remove(power)
+
+
+def deactivate_power_up_flags(stats, power, god_bullet_eq_instance, 
+                              machine_gun_eq_instance):
+    # god_bullet.
+    if power == god_bullet_eq_instance:
+        stats.god_bullet_active = False
+    # machine gun.
+    elif power == machine_gun_eq_instance:
+        stats.machine_gun_active = False
+
+
+def reset_timers(stats, power, god_bullet_eq_instance, machine_gun_eq_instance):
+    '''if already have a power up reset timer.'''
+    # god_bullet.
+    if power == god_bullet_eq_instance and stats.reset_god_bullet_timer:
+        power.get_start_time()
+        stats.reset_god_bullet_timer = False
+    # machine_gun.
+    elif power == machine_gun_eq_instance and stats.reset_machine_gun_timer:
+        power.get_start_time()
+        stats.reset_machine_gun_timer = False
 
 
 def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
