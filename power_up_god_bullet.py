@@ -20,3 +20,10 @@ class GodBulletPowerUp(PowerUp):
         '''end power'''
         self.ai_settings.reset_god_bullet_settings()
 
+    def __eq__(self, other):
+        if isinstance(other, GodBulletPowerUp):
+            return self.color == other.color
+        return False
+    
+    def __hash__(self):
+        return hash(self.color)

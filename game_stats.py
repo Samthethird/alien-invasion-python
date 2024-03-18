@@ -45,7 +45,19 @@ class GameStats():
         # mode for machine gun power_up.
         self.machine_gun_mode = False
 
+        # check to see any power_ups are active:
+        self.god_bullet_active = False
+        self.machine_gun_active = False
+        
+        # Timer resets
+        self.reset_god_bullet_timer = False
+
+        
     def reset_music(self):
         '''method for keeping track of music activity'''
         # Whether music is currently playing or not.
         self.music_playing = False
+
+    def get_now(self):
+        # Get the current time.
+        self.now = pygame.time.get_ticks()

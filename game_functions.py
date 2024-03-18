@@ -2,8 +2,8 @@ from power_up_god_bullet import GodBulletPowerUp
 from bullet import Bullet
 from alien import Alien
 from time import sleep
-import pygame
 import random
+import pygame
 import sys
 
 
@@ -275,7 +275,7 @@ def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
                     power_ups.add(god_bullet_power_up)
 
 
-def update_power_ups(screen_rect, stats, ship, power_ups, active_powers):
+def update_power_ups(screen_rect, stats, ship, power_ups, god_bullet_eq_instance):
     '''
     if there is a power up is on screen make it move down by callling 
     its update function.
@@ -284,30 +284,36 @@ def update_power_ups(screen_rect, stats, ship, power_ups, active_powers):
     if power_ups:
         for power_up in power_ups:
             power_up.update_power_up()
-
             # deleting missed power_ups.
             if power_up.rect.top >= screen_rect.bottom:
                 power_ups.remove(power_up)
 
             # check if any power ups have collided with the ship.
-            collisions = ship_power_up_collisions(stats, ship, power_ups)
+            collisions = ship_power_up_collisions(stats, ship, power_ups, god_bullet_eq_instance)
             if collisions:
                 # give respective power if collisions happend.
                 power_up.give_power()
-            
 
-def ship_power_up_collisions(stats, ship, power_ups):
+                # set god bullet to active.
+                if power_up == god_bullet_eq_instance:
+                    stats.god_bullet_active = True
+
+                 
+def ship_power_up_collisions(stats, ship, power_ups, god_bullet_eq_instance):
     '''determine collision between ship and powerup.'''
     collisions = pygame.sprite.spritecollide(ship, power_ups, True)
-    activate_powers(stats, collisions)
+    activate_powers(stats, collisions, god_bullet_eq_instance)
     return collisions
 
+def activate_powers(stats, collisions, god_bullet_eq_instance):
+    for collision in collisions:
+        if collision == god_bullet_eq_instance and stats.god_bullet_active:
+            stats.reset_god_bullet_timer = True
+        else:
+            stats.active_powers.add(collision)
 
-def activate_powers(stats, collisions):
-    stats.active_powers.add(collisions)
 
-
-def end_power(ai_settings, active_powers):
+def end_power(ai_settings, stats, active_powers, god_bullet_eq_instance):
     '''
     End the power of each power up recpectively 
     once their time limit has been reached.
@@ -315,8 +321,14 @@ def end_power(ai_settings, active_powers):
     if active_powers:
         now = pygame.time.get_ticks()
         for power in active_powers:
+            if power == god_bullet_eq_instance and stats.reset_god_bullet_timer:
+                power.get_start_time()
+                stats.reset_god_bullet_timer = False
+
             if now - power.start_time >= ai_settings.god_bullet_timer:
                 power.end_power()
+                if power == god_bullet_eq_instance:
+                    stats.god_bullet_active = False
                 active_powers.remove(power)
 
 
