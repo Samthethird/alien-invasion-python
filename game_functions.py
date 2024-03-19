@@ -9,18 +9,20 @@ import sys
 
 
 def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
-                 bullets, sound):
+                 bullets, sound, power_ups):
     '''Respond to keyboard and mouse activity.'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             close_game(ai_settings, stats)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, ai_settings, screen, stats, sb, ship,
-                                 aliens, bullets, sound)
+                                 aliens, bullets, sound, power_ups)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, stats, ship)
+        
+        # If machine gun mode is active and space is held auto fire
         elif stats.machine_gun_mode and stats.shooting:
-            fire_bullet(ai_settings, screen, ship, bullets, sound)
+            fire_bullet(ai_settings, screen, stats, ship, bullets, sound)
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -47,7 +49,7 @@ def check_keyup_events(event, stats, ship):
         stats.shooting = False
 
 
-def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
+def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bullets, sound, power_ups):
     '''Respond to key presses.'''
     if event.key == pygame.K_d:
         ship.moving_right = True
@@ -57,7 +59,7 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
         if stats.machine_gun_mode:
             stats.shooting = True
         else:
-            fire_bullet(ai_settings, screen, ship, bullets, sound)
+            fire_bullet(ai_settings, screen, stats, ship, bullets, sound)
 
     elif event.key == pygame.K_q:
         close_game(ai_settings, stats)
@@ -65,7 +67,7 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
     elif event.key == pygame.K_f:
         stats.ships_left = 0
-        ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
+        ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups)
 
 
 def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
@@ -148,7 +150,7 @@ def display_menu_achivement(stats, sb, sound):
         stats.game_over_s = False
 
 
-def fire_bullet(ai_settings, screen, ship, bullets, sound):
+def fire_bullet(ai_settings, screen, stats, ship, bullets, sound):
     '''Make a bullet if limit not reached.'''
     # Create a bullet and add it to the bullets group.
     if len(bullets) < ai_settings.bullets_allowed:
@@ -156,10 +158,11 @@ def fire_bullet(ai_settings, screen, ship, bullets, sound):
         bullets.add(new_bullet)
 
         #initiate sound effect.
-        sound.fire_bullet()
+        if stats.game_active:
+            sound.fire_bullet()
 
 
-def update_aliens(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
+def update_aliens(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups):
     '''
     Check if any alien has reached an edge then change
     fleet direction, and check for bottom and ship collisions.
@@ -169,10 +172,10 @@ def update_aliens(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
 
     # Detecting ship-alien collisions.
     if pygame.sprite.spritecollideany(ship, aliens):
-        ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
+        ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups)
     
     # Look for aliens hitting the bottom of the screen.
-    check_aliens_bottom(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
+    check_aliens_bottom(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups)
 
 
 def check_fleet_edges(ai_settings, aliens):
@@ -190,32 +193,40 @@ def change_fleet_direction(ai_settings, aliens):
     ai_settings.fleet_direction *= -1
 
 
-def check_aliens_bottom(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
+def check_aliens_bottom(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups):
     '''Check for any aliens that reached the bottom of the screen.'''
     screen_rect = screen.get_rect()
     for alien in aliens.sprites():
         if alien.rect.bottom >= screen_rect.bottom:
             '''Respond as if the ship is hit.'''
-            ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
+            ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups)
             break
 
 
-def ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
+def ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups):
     '''Respond properly if the ship is hit.'''
     if stats.ships_left > 1:
         next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
     else:
-        # Initiate hit audio.
-        sound.ship_hit()
+        end_game(stats, sound, power_ups)
 
-        # pause, finish game, activate gameover sound and make cursor visable.
-        sleep(0.5)
-        stats.game_active = False
-        stats.game_over_s = True
-        
-        # Reset music played.
-        stats.reset_music()
-        pygame.mouse.set_visible(True)
+
+def end_game(stats, sound, power_ups):
+    # Initiate hit audio.
+    sound.ship_hit()
+
+    # pause, finish game, activate gameover sound and make cursor visable.
+    sleep(0.5)
+    stats.game_active = False
+    stats.game_over_s = True
+    
+    # Reset music played.
+    stats.reset_music()
+    pygame.mouse.set_visible(True)
+
+    # Rest power_ups.
+    power_ups.empty()
+    stats.active_powers.empty()
 
 
 def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
@@ -275,7 +286,7 @@ def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when and alien is killed.'''
     if collisions:
         #roll a dice to determine power_up dropped.
-        chance = 2
+        chance = random.randint(1,70)
 
         if chance == 1:
             # if dice rolled 1 drop a "GodBullet" powerup.
@@ -381,7 +392,6 @@ def end_power(ai_settings, stats, active_powers, god_bullet_eq_instance, machine
         for power in active_powers:
             # if a already have a power_up reset its timer.
             reset_timers(stats, power, god_bullet_eq_instance, machine_gun_eq_instance)
-
             if now - power.start_time >= ai_settings.power_up_timer:
                 power.end_power()
                 deactivate_power_up_flags(stats, power, god_bullet_eq_instance, machine_gun_eq_instance)

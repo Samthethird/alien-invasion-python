@@ -39,12 +39,12 @@ def run_game():
     ship = Ship(ai_settings, screen)
     bullets = Group()
     aliens = Group()
-    alien = Alien(ai_settings, screen)
 
     # Making a fleet of aliens.
     gf.create_fleet(ai_settings, screen, ship, aliens)
 
     # equality instances.
+    alien = Alien(ai_settings, screen)
     god_bullet_eq_instance = GodBulletPowerUp(ai_settings, screen, stats, alien)
     machine_gun_eq_instance = MachineGunPowerUp(ai_settings, screen, stats, alien)
 
@@ -52,12 +52,13 @@ def run_game():
     while True:
 
         gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, 
-                 bullets, sound)
+                 bullets, sound, power_ups)
         if stats.game_active:
             ship.update()
             gf.update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets,
                              sound, power_ups)
-            gf.update_aliens(ai_settings, stats, sb , screen, ship, aliens, bullets, sound)
+            gf.update_aliens(ai_settings, stats, sb , screen, ship, aliens, bullets, sound, 
+                             power_ups)
             gf.update_power_ups(
                 screen.get_rect(), stats, ship, power_ups, god_bullet_eq_instance,
                 machine_gun_eq_instance

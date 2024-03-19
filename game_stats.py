@@ -58,3 +58,13 @@ class GameStats():
         '''method for keeping track of music activity'''
         # Whether music is currently playing or not.
         self.music_playing = False
+
+    def timer(self) -> bool:
+        '''a timer that ticks every 1/10 second.'''
+        while True:
+            first = pygame.time.get_ticks()
+            while True:
+                now = pygame.time.get_ticks()
+                if now - first == 100:
+                    return True
+                
