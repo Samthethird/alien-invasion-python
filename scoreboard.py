@@ -14,7 +14,7 @@ class Scoreboard():
         self.stats = stats
 
         # Font settings for scoring information
-        self.text_color = (30, 30, 30)
+        self.text_color = (200, 250, 200)
         self.font = pygame.font.SysFont(None, 48)
         
         # Preapare initial score images.
@@ -40,8 +40,7 @@ class Scoreboard():
         '''Trun the score into a rendered image.'''
         rounded_score = round(self.stats.score, -1)
         score_str = "{:,}".format(rounded_score)
-        self.score_image = self.font.render(score_str, True, self.text_color,
-                                            self.ai_settings.bg_color)
+        self.score_image = self.font.render(score_str, True, self.text_color)
         # Display the score on the top right of the screen
         self.score_rect = self.score_image.get_rect()
         self.score_rect.right = self.screen_rect.right - 20
@@ -51,8 +50,7 @@ class Scoreboard():
         '''Turn the hight score into a rendered image.'''
         high_score = round(self.stats.high_score, -1)
         high_score_str = "{:,}".format(high_score)
-        self.high_score_image = self.font.render(high_score_str, True, self.text_color, 
-                                                 self.ai_settings.bg_color)
+        self.high_score_image = self.font.render(high_score_str, True, self.text_color)
         
         # position high score.
         self.high_score_image_rect = self.high_score_image.get_rect()
@@ -62,7 +60,7 @@ class Scoreboard():
     def prep_level(self):
         '''Turn level into a rendered image.'''
         self.level_image = self.font.render(str(self.stats.level), True, 
-                                            self.text_color, self.ai_settings.bg_color)
+                                            self.text_color)
         
         # Position level.
         self.level_image_rect = self.level_image.get_rect()
@@ -97,17 +95,17 @@ class Scoreboard():
         achivement_str = ""
         if self.stats.game_counter == 0:
             self.achivement_image = self.font.render(achivement_str, True,
-                            (17, 93, 51), self.ai_settings.bg_color)
+                            (17, 93, 51))
 
         elif self.stats.high_score_beat:
             achivement_str = "YOU BEAT YOUR HIGH-SCORE!!!"
             # if won render green.
             self.achivement_image = self.font.render(achivement_str, True,
-                                        (17, 93, 51), self.ai_settings.bg_color)
+                                        (17, 93, 51))
 
         elif not self.stats.high_score_beat and self.stats.game_counter > 0:
             achivement_str = "YOU LOST!"
             # if you lost render red.
             self.achivement_image = self.font.render(achivement_str, True,
-                                    (160, 4, 8), self.ai_settings.bg_color)
+                                    (160, 4, 8))
         

@@ -1,5 +1,6 @@
 from power_up_machine_gun import MachineGunPowerUp
 from power_up_god_bullet import GodBulletPowerUp
+from background import BackGround
 from scoreboard import Scoreboard
 from game_stats import GameStats
 from pygame.sprite import Group
@@ -31,6 +32,7 @@ def run_game():
     sb = Scoreboard(ai_settings, screen, stats)
     sound = Sound()
     menu_art = MenuArt(ai_settings, screen)
+    bg = BackGround(screen)
 
     # Make a group for power_ups .
     power_ups = Group()
@@ -66,7 +68,7 @@ def run_game():
             gf.end_power(ai_settings, stats, stats.active_powers, god_bullet_eq_instance, 
                          machine_gun_eq_instance)
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
-                         play_button, sound, menu_art, power_ups)
+                         play_button, sound, menu_art, power_ups, bg)
         gf.update_music(stats, sound)
 run_game()
  

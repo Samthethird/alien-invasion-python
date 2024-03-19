@@ -5,7 +5,7 @@ class Settings():
         '''Initializes the games static settings.'''
         # Display settings.
         self.screen_width = 1200 #1200
-        self.screen_height = 800 #800
+        self.screen_height = 790 #750
         self.bg_color = (230, 230, 230)
 
         # Ship setttings.
@@ -15,8 +15,8 @@ class Settings():
         self.cube_width = 40
         self.cube_height = 40
         self.cube_speed = 0.5
-        self.god_bullet_color = (70, 0, 20)
-        self.machine_gun_color = (0, 0, 70)
+        self.god_bullet_color = (110, 0, 20)
+        self.machine_gun_color = (40, 40, 100)
 
         self.power_up_timer = 10000
 
@@ -37,9 +37,9 @@ class Settings():
 
     def initialize_dynamic_settings(self):
         '''Initialize settings that change throughout the game.'''
-        self.ship_speed_factor = 1.5 #1.5
-        self.bullet_speed_factor = 3 #3
-        self.alien_speed_factor = 1 #1
+        self.ship_speed_factor = 4 #1.5
+        self.bullet_speed_factor = 5 #3
+        self.alien_speed_factor = 2 #1
         self.cube_speed = 0.5
 
         # 1 means right and -1 vice versa.
@@ -53,7 +53,7 @@ class Settings():
         # Bullet settings.
         self.bullet_width = 3 #3
         self.bullet_height = 15 #15
-        self.bullet_color = (60, 60, 60)
+        self.bullet_color = (250, 130, 130)
         self.bullets_allowed = 3 #3
         self.bullet_destruction = True
 

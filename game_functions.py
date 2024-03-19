@@ -92,16 +92,17 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
         aliens.empty()
         bullets.empty()
 
+        stats.active_powers.empty()
         # Create new fleet and center ship.
         create_fleet(ai_settings, screen, ship, aliens)
         ship.center_ship()
 
 
 def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
-                  play_button, sound, menu_art, power_ups):
+                  play_button, sound, menu_art, power_ups, bg):
     '''Update the images on screen and flip to a new screen.'''
     # Redraw the screen during each pass through the loop.
-    screen.fill(ai_settings.bg_color)
+    bg.blitme()
 
     if stats.game_active:
         # Redraw all the bullets behind ship and alliens.
@@ -186,7 +187,7 @@ def check_fleet_edges(ai_settings, aliens):
             break
 
 
-def change_fleet_direction(ai_settings, aliens):
+def change_fleet_direction(ai_settings:object, aliens:object) -> int:
     '''Drop the entire fleet and change directions.'''
     for alien in aliens.sprites():
         alien.rect.y += ai_settings.fleet_drop_speed
