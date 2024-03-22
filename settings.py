@@ -1,13 +1,14 @@
 class Settings():
     '''A class for storing the settings of Alien Invasion.'''
 
-    def __init__(self):
+    def __init__(self, stats):
         '''Initializes the games static settings.'''
         # Display settings.
         self.screen_width = 1200 #1200
         self.screen_height = 790 #750
         self.bg_color = (230, 230, 230)
-
+        self.stats = stats
+        
         # Ship setttings.
         self.ship_limit = 3 #3
 
@@ -28,9 +29,6 @@ class Settings():
 
         # Score Multiplier
         self.score_scale = 1.15
-
-        # save data file location.
-        self.data_location = "saves/save_data.txt"
         
         self.initialize_dynamic_settings()
         self.reset_god_bullet_settings()
@@ -59,8 +57,21 @@ class Settings():
 
     def increase_speed(self):
         # Increase the speed settings and alien point value.
-        self.ship_speed_factor *= self.speedup_scale
-        self.bullet_speed_factor *= self.speedup_scale
-        self.alien_speed_factor *= self.speedup_scale
-        self.cube_speed *= self.speedup_scale
+        if self.stats.level < 7:
+            # increase speed until level 7
+            self.ship_speed_factor *= self.speedup_scale
+            self.bullet_speed_factor *= self.speedup_scale
+            self.alien_speed_factor *= self.speedup_scale
+            self.cube_speed *= self.speedup_scale
+
+        elif self.stats.level < 12:
+            # turn on hard mode and stop speed up
+            self.stats.hard_mode_aliens = True
+
+        else:
+            # Turn on hard mode 2.
+            self.stats.hard_mode_aliens = False
+            self.stats.hard_mode_aliens2 = True
+
+        # increase points value of alines each level    
         self.alien_points = int(self.alien_points * self.score_scale)

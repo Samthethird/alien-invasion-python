@@ -66,8 +66,8 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
     elif event.key == pygame.K_p:
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
     elif event.key == pygame.K_f:
-        stats.ships_left = 0
-        ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups)
+        stats.level = 7
+        aliens.empty()
 
 
 def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
@@ -94,7 +94,7 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
 
         stats.active_powers.empty()
         # Create new fleet and center ship.
-        create_fleet(ai_settings, screen, ship, aliens)
+        create_fleet(ai_settings, screen, stats, ship, aliens)
         ship.center_ship()
 
 
@@ -246,7 +246,8 @@ def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
     bullets.empty()
 
     # Create new fleet and and center ship.
-    create_fleet(ai_settings, screen, ship, aliens)
+    check_level(ai_settings, stats)
+    create_fleet(ai_settings, screen, stats, ship, aliens)
     ship.center_ship()
 
     # Pause.
@@ -272,22 +273,22 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
     # Remove any bullets and aliens that have collided.
     collisions = pygame.sprite.groupcollide(bullets, aliens, ai_settings.bullet_destruction, True)
 
+    # increase score if alien hit.
+    add_score(ai_settings, stats, sb, collisions, sound)
+
     # randomly drop a powerup if an alien is killed.
     drop_power_up(ai_settings, screen, stats, power_ups, collisions)
 
     if len(aliens) == 0:
         '''If  entire fleet is destroyed, go to new level'''
         next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound)
-    
-    # increase score if alien hit.
-    add_score(ai_settings, stats, sb, collisions, sound)
 
 
 def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when and alien is killed.'''
     if collisions:
         #roll a dice to determine power_up dropped.
-        chance = random.randint(1,70)
+        chance = random.randint(1,100)
 
         if chance == 1:
             # if dice rolled 1 drop a "GodBullet" powerup.
@@ -426,23 +427,44 @@ def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
         # initate next level sound effect.
         sound.next_level()
 
-        # Empty bullets and increase game speed
-        bullets.empty()
-        ai_settings.increase_speed()
-        create_fleet(ai_settings, screen, ship, aliens)
-
         # Increase and show level.
         stats.level += 1
         sb.prep_level()
 
+        # Empty bullets.
+        bullets.empty()
+        
+        # check level and create fleet
+        check_level(ai_settings, stats)
+        create_fleet(ai_settings, screen, stats, ship, aliens)
+
+
+def check_level(ai_settings, stats):
+        '''check levels and turn on hard or insane mode.'''
+        # if level is >= 7 turn on hard mode and dont increase speed.
+        if stats.level >= 7 and stats.level < 12:
+            stats.hard_mode = True
+        # if its 12 or higher turn on insane mode.
+        elif stats.level >= 12:
+            stats.hard_mode = False
+            stats.insane_mode = True
+        else:
+            ai_settings.increase_speed()
+  
 
 def add_score(ai_settings, stats, sb, collisions, sound):
-    if collisions:
-        '''add score and check if high score is broken'''
-        for aliens in collisions.values():
-            stats.score += ai_settings.alien_points * len(aliens)
-            sb.prep_score()
-        check_high_score(stats, sb, sound)
+    '''add score and check if high score is broken'''
+    for aliens in collisions.values():
+        stats.score += ai_settings.alien_points * len(aliens)
+        sb.prep_score()
+    check_high_score(stats, sb, sound)
+
+
+def hadd_score(ai_settings, stats, sb, sound, haliens):
+    '''do hard mode scoring.'''
+    stats.score += ai_settings.alien_points * len(haliens)
+    sb.prep_score()
+    check_high_score(stats, sb, sound)
 
 
 def check_high_score(stats, sb, sound):
@@ -460,10 +482,10 @@ def check_high_score(stats, sb, sound):
             stats.run_high_score_s = True
 
 
-def create_fleet(ai_settings, screen, ship,  aliens):
+def create_fleet(ai_settings, screen, stats, ship, aliens):
     '''Create a full fleet of aliens.'''
     # Create an alien and find the number of aliens in a row.
-    alien = Alien(ai_settings, screen)
+    alien = Alien(ai_settings, screen, stats)
     number_aliens_x = get_number_aliens_x(ai_settings, alien.rect.width)
     number_rows = get_number_rows(ai_settings, ship.rect.height,
                                    alien.rect.height)
@@ -471,7 +493,7 @@ def create_fleet(ai_settings, screen, ship,  aliens):
     # Create first row of aliens.
     for row_number in range(number_rows):
         for alien_number in range(number_aliens_x):
-            create_alien(ai_settings, screen, aliens, alien_number,
+            create_alien(ai_settings, screen, stats, aliens, alien_number,
                          row_number)
 
 
@@ -490,9 +512,9 @@ def get_number_rows(ai_settings, ship_height, alien_height):
     return number_rows
 
 
-def create_alien(ai_settings, screen, aliens, alien_number, row_number):
+def create_alien(ai_settings, screen, stats, aliens, alien_number, row_number):
     '''Create alien and add to the row.'''
-    alien = Alien(ai_settings, screen)
+    alien = Alien(ai_settings, screen, stats)
     alien_width = alien.rect.width
     alien.x = alien_width + 2 * alien_width * alien_number
     alien.rect.x = alien.x

@@ -1,10 +1,10 @@
 import pygame
+from settings import Settings
 
 class GameStats():
     '''Track statistics for Alien Invasion.'''
-    def __init__(self, ai_settings):
+    def __init__(self):
         '''Initialize Statistics'''
-        self.ai_settings = ai_settings
         self.reset_stats()
         self.reset_music()
 
@@ -12,59 +12,47 @@ class GameStats():
         self.game_active = False
         # Reading high_score from save data
         self.high_score = 0
-        with open(ai_settings.data_location) as high_score:
+        with open("saves/save_data.txt") as high_score:
             contents = high_score.read()
         self.high_score = int(contents.rstrip())
             
     def reset_stats(self):
         '''A method for stats that reset each game.'''
-        # Lives remaining.
-        self.ships_left = self.ai_settings.ship_limit
-
-        # Current score.
+        # scores
+        self.ships_left = 3
         self.score = 0
-        
-        # Current games level.
         self.level = 1
 
-        # Whether high_score sound effect has been played.
+        # one time runs
         self.run_high_score_s = False
-
-        # Whether game over sound has been played.
         self.game_over_s= False
-
-        # Whether the high_score has already been broken.
         self.high_score_beat = False
 
-        # How many time the game has run in the currnet session.
+        # game counter
         self.game_counter = 0
+        
+        # hard and insane modes acitivity.
+        self.hard_mode = False
+        self.insane_mode = False
 
+        self.power_ups()
+
+    def power_ups(self):
+        '''method dedicated to initializing power_up stats.'''
         # Group for current active powers
         self.active_powers = pygame.sprite.Group()
 
-        # mode for machine gun power_up.
+        # MACHINE GUN.
+        self.reset_machine_gun_timer = False
+        self.machine_gun_active = False
         self.machine_gun_mode = False
         self.shooting = False
         
-        # check to see any power_ups are active:
-        self.god_bullet_active = False
-        self.machine_gun_active = False
-        
-        # Timer resets
+        # GOD BULLET:
         self.reset_god_bullet_timer = False
-        self.reset_machine_gun_timer = False
-        
+        self.god_bullet_active = False
+
     def reset_music(self):
         '''method for keeping track of music activity'''
         # Whether music is currently playing or not.
         self.music_playing = False
-
-    def timer(self) -> bool:
-        '''a timer that ticks every 1/10 second.'''
-        while True:
-            first = pygame.time.get_ticks()
-            while True:
-                now = pygame.time.get_ticks()
-                if now - first == 100:
-                    return True
-                

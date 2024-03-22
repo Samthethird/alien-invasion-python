@@ -1,15 +1,15 @@
 import pygame
 from ship import Ship
 from alien import Alien
-from bullet import Bullet
 
 class MenuArt():
     '''A class that make the main menu art'''
 
-    def __init__(self, ai_settings, screen):
+    def __init__(self, ai_settings, screen, stats):
         self.ai_settings = ai_settings
         self.screen = screen
-        
+        self.stats = stats
+
     def create_menu_art(self):
         '''Make the main menu art.'''
         self.create_menu_alien()
@@ -19,7 +19,7 @@ class MenuArt():
 
     def create_menu_alien(self):
         '''Create an alien for the main menu art.'''
-        solo_alien = Alien(self.ai_settings, self.screen)
+        solo_alien = Alien(self.ai_settings, self.screen, self.stats)
         solo_alien.rect.x = 200
         solo_alien.rect.y = 250
         solo_alien.blitme()

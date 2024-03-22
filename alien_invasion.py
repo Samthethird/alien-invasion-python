@@ -17,8 +17,9 @@ import pygame
 def run_game():
     '''Initialize pygame, Settings and screen object.'''
     pygame.init()
-    pygame.mixer.init()
-    ai_settings = Settings()
+    
+    stats = GameStats()
+    ai_settings = Settings(stats)
     screen = pygame.display.set_mode(
         (ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption("Alien Invasion")
@@ -27,14 +28,13 @@ def run_game():
     play_button = Button(ai_settings, screen, "Play")
 
     # Create an instance to store the games statistics and scoreboard
-    # Handle sounds and Menu Art aswell.
-    stats = GameStats(ai_settings)
+    # Handle sounds and Menu Art as well.
     sb = Scoreboard(ai_settings, screen, stats)
     sound = Sound()
-    menu_art = MenuArt(ai_settings, screen)
+    menu_art = MenuArt(ai_settings, screen, stats)
     bg = BackGround(screen)
 
-    # Make a group for power_ups .
+    # Make a group for power_ups.
     power_ups = Group()
 
     # Make a ship, a group for bullets and aliens.
@@ -42,11 +42,11 @@ def run_game():
     bullets = Group()
     aliens = Group()
 
-    # Making a fleet of aliens.
-    gf.create_fleet(ai_settings, screen, ship, aliens)
+    # Making initial alien fleet. 
+    gf.create_fleet(ai_settings, screen, stats, ship, aliens)
 
     # equality instances.
-    alien = Alien(ai_settings, screen)
+    alien = Alien(ai_settings, screen, stats)
     god_bullet_eq_instance = GodBulletPowerUp(ai_settings, screen, stats, alien)
     machine_gun_eq_instance = MachineGunPowerUp(ai_settings, screen, stats, alien)
 
