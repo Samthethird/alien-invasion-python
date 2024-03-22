@@ -13,6 +13,16 @@ from alien import Alien
 from ship import Ship
 import pygame
 
+# to do: 
+# -add getting hit varity
+# -adjust game progression
+# -add more power_ups
+# -fix machine gun mode/ give cooldown
+# -add texture to powerup
+# -overall polish
+# -add more menu options.
+# ?add more spice to gameplay
+
 
 def run_game():
     '''Initialize pygame, Settings and screen object.'''
@@ -20,25 +30,21 @@ def run_game():
     
     stats = GameStats()
     ai_settings = Settings(stats)
+    # Screen object.
     screen = pygame.display.set_mode(
         (ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption("Alien Invasion")
 
-    # Make the play button.
+    # Instances.
     play_button = Button(ai_settings, screen, "Play")
-
-    # Create an instance to store the games statistics and scoreboard
-    # Handle sounds and Menu Art as well.
-    sb = Scoreboard(ai_settings, screen, stats)
-    sound = Sound()
     menu_art = MenuArt(ai_settings, screen, stats)
+    sb = Scoreboard(ai_settings, screen, stats)
     bg = BackGround(screen)
+    sound = Sound()
 
-    # Make a group for power_ups.
-    power_ups = Group()
-
-    # Make a ship, a group for bullets and aliens.
+    # Groups.
     ship = Ship(ai_settings, screen)
+    power_ups = Group()
     bullets = Group()
     aliens = Group()
 
@@ -50,7 +56,7 @@ def run_game():
     god_bullet_eq_instance = GodBulletPowerUp(ai_settings, screen, stats, alien)
     machine_gun_eq_instance = MachineGunPowerUp(ai_settings, screen, stats, alien)
 
-    # Main loop for the game.
+    # Main game loop.
     while True:
 
         gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, 
@@ -70,5 +76,6 @@ def run_game():
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
                          play_button, sound, menu_art, power_ups, bg)
         gf.update_music(stats, sound)
+
 run_game()
  

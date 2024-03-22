@@ -292,7 +292,7 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
         next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound)
 
 
-def hard_mode_collisions(stats, g_aliens, collisions):
+def hard_mode_collisions(stats, g_aliens, collisions, hit):
     # reducing hp and removeing hard aliens
     if stats.hard_mode or stats.insane_mode:
         if collisions:
@@ -307,7 +307,7 @@ def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when and alien is killed.'''
     if collisions:
         #roll a dice to determine power_up dropped.
-        chance = random.randint(1,130)
+        chance = random.randint(1,160)
 
         if chance == 1:
             # if dice rolled 1 drop a "GodBullet" powerup.
