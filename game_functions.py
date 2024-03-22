@@ -66,7 +66,7 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
     elif event.key == pygame.K_p:
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
     elif event.key == pygame.K_f:
-        stats.level = 7
+        stats.level = 6
         aliens.empty()
 
 
@@ -270,8 +270,16 @@ def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound, 
 def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound, power_ups):
     '''Respond to bullet/alien collisions.'''
 
+    if stats.hard_mode or stats.insane_mode:
+        ai_settings.alien_destruction = False
+    else:
+        ai_settings.alien_destruction = True
+
     # Remove any bullets and aliens that have collided.
-    collisions = pygame.sprite.groupcollide(bullets, aliens, ai_settings.bullet_destruction, True)
+    collisions = pygame.sprite.groupcollide(bullets, aliens, ai_settings.bullet_destruction, 
+                                            ai_settings.alien_destruction)
+    
+    hard_mode_collisions(stats, aliens, collisions)
 
     # increase score if alien hit.
     add_score(ai_settings, stats, sb, collisions, sound)
@@ -284,11 +292,22 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
         next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound)
 
 
+def hard_mode_collisions(stats, g_aliens, collisions):
+    # reducing hp and removeing hard aliens
+    if stats.hard_mode or stats.insane_mode:
+        if collisions:
+            for aliens in collisions.values():
+                for alien in aliens:
+                    alien.hp -= 1
+                    if alien.hp == 0:
+                        g_aliens.remove(alien)
+
+
 def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when and alien is killed.'''
     if collisions:
         #roll a dice to determine power_up dropped.
-        chance = random.randint(1,100)
+        chance = random.randint(1,130)
 
         if chance == 1:
             # if dice rolled 1 drop a "GodBullet" powerup.
@@ -434,6 +453,8 @@ def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
         # Empty bullets.
         bullets.empty()
         
+        ai_settings.increase_alien_worth()
+        
         # check level and create fleet
         check_level(ai_settings, stats)
         create_fleet(ai_settings, screen, stats, ship, aliens)
@@ -441,8 +462,8 @@ def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
 
 def check_level(ai_settings, stats):
         '''check levels and turn on hard or insane mode.'''
-        # if level is >= 7 turn on hard mode and dont increase speed.
-        if stats.level >= 7 and stats.level < 12:
+        # if level is >= 6 turn on hard mode and dont increase speed.
+        if stats.level >= 6 and stats.level < 12:
             stats.hard_mode = True
         # if its 12 or higher turn on insane mode.
         elif stats.level >= 12:
@@ -525,7 +546,7 @@ def create_alien(ai_settings, screen, stats, aliens, alien_number, row_number):
 def close_game(ai_settings, stats):
     '''save game before closing'''
     # Save high score.
-    with open(ai_settings.data_location, 'w') as high_score:
+    with open("saves/save_data.txt", 'w') as high_score:
         high_score.write(str(stats.high_score))
     
     # Close game.

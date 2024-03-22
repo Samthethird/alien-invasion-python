@@ -51,5 +51,5 @@ class Alien(Sprite):
 
         #activate insane mode.
         elif self.stats.insane_mode:
-            self.image = pygame.image.load("images/alien3.png")
+            self.image = pygame.image.load("images/alien2.png")
             self.hp = 3

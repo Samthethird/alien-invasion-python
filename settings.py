@@ -43,8 +43,10 @@ class Settings():
         # 1 means right and -1 vice versa.
         self.fleet_direction = 1 #1
 
-        # Scorint settings.
+        # Scoring settings.
         self.alien_points = 50
+
+        self.alien_destruction = False
 
     def reset_god_bullet_settings(self):
         '''initiate settings that can be increased by powerUps.'''
@@ -64,14 +66,6 @@ class Settings():
             self.alien_speed_factor *= self.speedup_scale
             self.cube_speed *= self.speedup_scale
 
-        elif self.stats.level < 12:
-            # turn on hard mode and stop speed up
-            self.stats.hard_mode_aliens = True
-
-        else:
-            # Turn on hard mode 2.
-            self.stats.hard_mode_aliens = False
-            self.stats.hard_mode_aliens2 = True
-
+    def increase_alien_worth(self):
         # increase points value of alines each level    
         self.alien_points = int(self.alien_points * self.score_scale)
