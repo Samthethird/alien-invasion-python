@@ -54,7 +54,7 @@ class Settings():
         self.bullet_width = 3 #3
         self.bullet_height = 15 #15
         self.bullet_color = (250, 130, 130)
-        self.bullets_allowed = 3 #3
+        self.bullets_allowed = 1000 #3
         self.bullet_destruction = True
 
     def increase_speed(self):

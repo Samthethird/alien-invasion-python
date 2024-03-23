@@ -23,6 +23,7 @@ from hit import Hit
 # -add more menu options.
 # ?add more spice to gameplay
 # -health drops
+# -add top tree scores.
 
 def run_game():
     '''Initialize pygame, Settings and screen object.'''
@@ -61,6 +62,7 @@ def run_game():
     while True:
         gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, 
                  bullets, sound, power_ups)
+        gf.check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound)
         if stats.game_active:
             ship.update()
             gf.update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets,
@@ -76,6 +78,6 @@ def run_game():
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
                          play_button, sound, menu_art, power_ups, bg)
         gf.update_music(stats, sound)
-
+        print(stats.shooting)
 run_game()
  

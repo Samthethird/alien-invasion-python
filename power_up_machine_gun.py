@@ -11,9 +11,9 @@ class MachineGunPowerUp(PowerUp):
 
     def give_power(self):
         '''give the powers of machine gun to the player.'''
+        self.ai_settings.bullets_allowed = 1000
         self.stats.machine_gun_mode = True
         self.get_start_time()
-        self.ai_settings.bullets_allowed = 1000
 
     def end_power(self):
         '''end power'''
