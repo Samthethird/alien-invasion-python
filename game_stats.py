@@ -44,8 +44,8 @@ class GameStats():
         # MACHINE GUN.
         self.reset_machine_gun_timer = False
         self.machine_gun_active = False
-        self.machine_gun_mode = False
         self.shooting = False
+        self.start_time = 0
         
         # GOD BULLET:
         self.reset_god_bullet_timer = False

@@ -63,8 +63,19 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
 
 
 def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound):
+    machine_gun_backup(ai_settings, stats)
+    now = pygame.time.get_ticks()
     if stats.shooting:
-        fire_bullet(ai_settings, screen, stats, ship, bullets, sound)
+        if now - stats.start_time >= 140:
+            fire_bullet(ai_settings, screen, stats, ship, bullets, sound)
+                
+            
+def machine_gun_backup(ai_settings, stats):
+    if not stats.machine_gun_active and stats.shooting:
+        stats.shooting = False
+
+    if stats.machine_gun_active and ai_settings.bullets_allowed == 3:
+        ai_settings.bullets_allowed = 1000
 
 
 def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets):
@@ -158,6 +169,7 @@ def fire_bullet(ai_settings, screen, stats, ship, bullets, sound):
         #initiate sound effect.
         if stats.game_active:
             sound.fire_bullet()
+        stats.start_time = pygame.time.get_ticks()
 
 
 def update_aliens(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups):
@@ -315,7 +327,7 @@ def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when and alien is killed.'''
     if collisions:
         #roll a dice to determine power_up dropped.
-        chance = 2
+        chance = random.randint(1,200)
 
         if chance == 1:
             # if dice rolled 1 drop a "GodBullet" powerup.
