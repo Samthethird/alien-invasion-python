@@ -12,9 +12,9 @@ from sounds import Sound
 from alien import Alien
 from ship import Ship
 import pygame
+from hit import Hit
 
 # to do: 
-# -add getting hit varity
 # -adjust game progression
 # -add more power_ups
 # -fix machine gun mode/ give cooldown
@@ -22,7 +22,7 @@ import pygame
 # -overall polish
 # -add more menu options.
 # ?add more spice to gameplay
-
+# -health drops
 
 def run_game():
     '''Initialize pygame, Settings and screen object.'''
@@ -34,14 +34,15 @@ def run_game():
     screen = pygame.display.set_mode(
         (ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption("Alien Invasion")
-
+    
     # Instances.
     play_button = Button(ai_settings, screen, "Play")
     menu_art = MenuArt(ai_settings, screen, stats)
     sb = Scoreboard(ai_settings, screen, stats)
     bg = BackGround(screen)
     sound = Sound()
-
+    hit = Hit()
+    clock = pygame.time.Clock()
     # Groups.
     ship = Ship(ai_settings, screen)
     power_ups = Group()
@@ -58,13 +59,12 @@ def run_game():
 
     # Main game loop.
     while True:
-
         gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, 
                  bullets, sound, power_ups)
         if stats.game_active:
             ship.update()
             gf.update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets,
-                             sound, power_ups)
+                             sound, power_ups, hit)
             gf.update_aliens(ai_settings, stats, sb , screen, ship, aliens, bullets, sound, 
                              power_ups)
             gf.update_power_ups(

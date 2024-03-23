@@ -35,7 +35,7 @@ def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens,
     '''Start the game when the player hits the play button.'''
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked:
-        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
+        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets)
         stats.game_counter += 1
 
 
@@ -64,13 +64,11 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
     elif event.key == pygame.K_q:
         close_game(ai_settings, stats)
     elif event.key == pygame.K_p:
-        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
+        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets)
     elif event.key == pygame.K_f:
-        stats.level = 6
-        aliens.empty()
+        end_game(stats, sound, power_ups, ai_settings)
 
-
-def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
+def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets):
     if not stats.game_active:        
         # Reset the games settings.
         ai_settings.initialize_dynamic_settings()
@@ -209,11 +207,12 @@ def ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power
     if stats.ships_left > 1:
         next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound)
     else:
-        end_game(stats, sound, power_ups)
+        end_game(stats, sound, power_ups, ai_settings)
 
 
-def end_game(stats, sound, power_ups):
+def end_game(stats, sound, power_ups, ai_settings):
     # Initiate hit audio.
+    
     sound.ship_hit()
 
     # pause, finish game, activate gameover sound and make cursor visable.
@@ -227,7 +226,8 @@ def end_game(stats, sound, power_ups):
 
     # Rest power_ups.
     power_ups.empty()
-    stats.active_powers.empty()
+    stats.active_powers.empty() 
+    ai_settings.reset_god_bullet_settings()
 
 
 def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
@@ -254,7 +254,7 @@ def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound):
     sleep(0.5)
 
 
-def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound, power_ups):
+def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound, power_ups, hit):
     '''Update position of bullets and remove old ones and check for alien bullet collisisons.'''
     # Update bullet positions
     bullets.update()
@@ -264,10 +264,10 @@ def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound, 
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
 
-    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound, power_ups)
+    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound, power_ups, hit)
 
 
-def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound, power_ups):
+def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound, power_ups, hit):
     '''Respond to bullet/alien collisions.'''
 
     if stats.hard_mode or stats.insane_mode:
@@ -279,7 +279,7 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
     collisions = pygame.sprite.groupcollide(bullets, aliens, ai_settings.bullet_destruction, 
                                             ai_settings.alien_destruction)
     
-    hard_mode_collisions(stats, aliens, collisions)
+    hard_mode_collisions(stats, aliens, collisions, hit)
 
     # increase score if alien hit.
     add_score(ai_settings, stats, sb, collisions, sound)
@@ -299,6 +299,10 @@ def hard_mode_collisions(stats, g_aliens, collisions, hit):
             for aliens in collisions.values():
                 for alien in aliens:
                     alien.hp -= 1
+                    if stats.hard_mode:
+                        hit.hard_alien_hit(alien)
+                    elif stats.insane_mode:
+                        hit.insane_alien_hit(alien)
                     if alien.hp == 0:
                         g_aliens.remove(alien)
 
@@ -307,7 +311,7 @@ def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when and alien is killed.'''
     if collisions:
         #roll a dice to determine power_up dropped.
-        chance = random.randint(1,160)
+        chance = 1
 
         if chance == 1:
             # if dice rolled 1 drop a "GodBullet" powerup.
@@ -452,8 +456,8 @@ def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
 
         # Empty bullets.
         bullets.empty()
-        
-        ai_settings.increase_alien_worth()
+        if not stats.hard_mode:
+            ai_settings.increase_alien_worth()
         
         # check level and create fleet
         check_level(ai_settings, stats)

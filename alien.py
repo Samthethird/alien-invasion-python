@@ -46,10 +46,10 @@ class Alien(Sprite):
     def increase_difficulty(self):
         '''change the difficulty of the alines.'''
         if self.stats.hard_mode:
-            self.image = pygame.image.load("images/alien2.png")
+            self.image = pygame.image.load("images/alien2_normal.png")
             self.hp = 2
 
         #activate insane mode.
         elif self.stats.insane_mode:
-            self.image = pygame.image.load("images/alien2.png")
+            self.image = pygame.image.load("images/alien3_normal.png")
             self.hp = 3
