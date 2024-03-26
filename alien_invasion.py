@@ -16,67 +16,102 @@ from hit import Hit
 
 # to do: 
 # -adjust game progression
-# -add more power_ups
-# -fix machine gun mode/ give cooldown
+# -add more self.power_ups
 # -add texture to powerup
 # -overall polish
 # -add more menu options.
 # ?add more spice to gameplay
 # -health drops
-# -add top tree scores.
+# -add top three scores.
+# -enchacne god bullet visually
 
-def run_game():
-    '''Initialize pygame, Settings and screen object.'''
-    pygame.init()
-    
-    stats = GameStats()
-    ai_settings = Settings(stats)
-    # Screen object.
-    screen = pygame.display.set_mode(
-        (ai_settings.screen_width, ai_settings.screen_height))
-    pygame.display.set_caption("Alien Invasion")
-    
-    # Instances.
-    play_button = Button(ai_settings, screen, "Play")
-    menu_art = MenuArt(ai_settings, screen, stats)
-    sb = Scoreboard(ai_settings, screen, stats)
-    bg = BackGround(screen)
-    sound = Sound()
-    hit = Hit()
-    clock = pygame.time.Clock()
-    # Groups.
-    ship = Ship(ai_settings, screen)
-    power_ups = Group()
-    bullets = Group()
-    aliens = Group()
+class AlienInvasion():
+    '''Class for the game alien invasion.'''
 
-    # Making initial alien fleet. 
-    gf.create_fleet(ai_settings, screen, stats, ship, aliens)
+    def __init__(self):
+        '''Initialize pygame, Settings and self.screen object.'''
+        pygame.init()
+        
+        self.stats = GameStats()
+        self.ai_settings = Settings(self.stats)
+        # self.Screen object.
+        self.screen = pygame.display.set_mode(
+            (self.ai_settings.screen_width, self.ai_settings.screen_height))
+        pygame.display.set_caption("Alien Invasion")
+        
+        # Instances.
+        self.play_button = Button(self.ai_settings, self.screen, "Play")
+        self.menu_art = MenuArt(self.ai_settings, self.screen, self.stats)
+        self.sb = Scoreboard(self.ai_settings, self.screen, self.stats)
+        self.bg = BackGround(self.screen)
+        self.sound = Sound()
+        self.hit = Hit()
+        self.clock = pygame.time.Clock()
 
-    # equality instances.
-    alien = Alien(ai_settings, screen, stats)
-    god_bullet_eq_instance = GodBulletPowerUp(ai_settings, screen, stats, alien)
-    machine_gun_eq_instance = MachineGunPowerUp(ai_settings, screen, stats, alien)
+        # Groups.
+        self.ship = Ship(self.ai_settings, self.screen)
+        self.power_ups = Group()
+        self.bullets = Group()
+        self.aliens = Group()
 
-    # Main game loop.
-    while True:
-        gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, 
-                 bullets, sound, power_ups)
-        gf.check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound)
-        if stats.game_active:
-            ship.update()
-            gf.update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets,
-                             sound, power_ups, hit)
-            gf.update_aliens(ai_settings, stats, sb , screen, ship, aliens, bullets, sound, 
-                             power_ups)
-            gf.update_power_ups(
-                screen.get_rect(), stats, ship, power_ups, god_bullet_eq_instance,
-                machine_gun_eq_instance
-                )
-            gf.end_power(ai_settings, stats, stats.active_powers, god_bullet_eq_instance, 
-                         machine_gun_eq_instance)
-        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
-                         play_button, sound, menu_art, power_ups, bg)
-        gf.update_music(stats, sound)
-run_game()
- 
+        # equality instances.
+        alien = Alien(self.ai_settings, self.screen, self.stats)
+        self.god_bullet_eq_instance = GodBulletPowerUp(
+            self.ai_settings, self.screen, self.stats, alien
+            )
+        self.machine_gun_eq_instance = MachineGunPowerUp(
+            self.ai_settings, self.screen, self.stats, alien
+            )
+
+    def run_game(self):
+        '''run all game functions'''
+        # Make initial alien fleet. 
+        gf.create_fleet(self.ai_settings, self.screen,
+                         self.stats, self.ship, self.aliens
+                         )
+
+        # Main game loop.
+        while True:
+
+            # GAME NOT ACTIVE.
+            gf.events(self.ai_settings, self.screen, 
+                            self.stats, self.sb, self.play_button, 
+                            self.ship, self.aliens, 
+                            self.bullets, self.sound, self.power_ups
+                            )
+            gf.check_machine_gun_mode(self.ai_settings, self.screen, 
+                                      self.stats, self.ship, self.bullets, 
+                                      self.sound
+                                      )
+            
+            # GAME ACTIVE.
+            if self.stats.game_active:
+                self.ship.update()
+                gf.update_bullet(self.ai_settings, self.screen, self.stats, 
+                                self.sb, self.ship, self.aliens, self.bullets,
+                                self.sound, self.power_ups, self.hit
+                                )
+                gf.update_aliens(self.ai_settings, self.stats, self.sb , self.screen, 
+                                self.ship, self.aliens, self.bullets, self.sound, 
+                                self.power_ups
+                                )
+                gf.update_power_ups(self.screen.get_rect(), self.stats, 
+                                    self.ship, self.power_ups, 
+                                    self.god_bullet_eq_instance,
+                                    self.machine_gun_eq_instance
+                                    )
+                gf.end_power(self.ai_settings, self.stats, self.stats.active_powers, 
+                            self.god_bullet_eq_instance, self.machine_gun_eq_instance
+                            )
+            gf.update_screen(self.ai_settings, self.screen, self.stats, self.sb, 
+                            self.ship, self.aliens, self.bullets, self.play_button, 
+                            self.sound, self.menu_art, self.power_ups, self.bg
+                            )
+            
+            gf.update_music(self.stats, self.sound)
+            self.clock.tick(180)
+
+
+if __name__ == "__main__":
+    ai = AlienInvasion()
+    ai.run_game()

@@ -1,6 +1,7 @@
 from power_up_god_bullet import GodBulletPowerUp
 from power_up_machine_gun import MachineGunPowerUp
 from bullet import Bullet
+from pathlib import Path
 from alien import Alien
 from time import sleep
 import random
@@ -13,7 +14,7 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
     '''Respond to keyboard and mouse activity.'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            close_game(ai_settings, stats)
+            close_game(stats)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, ai_settings, screen, stats, sb, ship,
                                  aliens, bullets, sound, power_ups)
@@ -55,7 +56,7 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
     elif event.key == pygame.K_SPACE and stats.machine_gun_active:
         stats.shooting = True
     elif event.key == pygame.K_q:
-        close_game(ai_settings, stats)
+        close_game(stats)
     elif event.key == pygame.K_p:
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets)
     elif event.key == pygame.K_f:
@@ -465,7 +466,6 @@ def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
         '''proceed to the next level.'''
         # initate next level sound effect.
         sound.next_level()
-
         # Increase and show level.
         stats.level += 1
         sb.prep_level()
@@ -478,7 +478,7 @@ def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
         # check level and create fleet
         check_level(ai_settings, stats)
         create_fleet(ai_settings, screen, stats, ship, aliens)
-
+        print(ai_settings.ship_speed_factor)
 
 def check_level(ai_settings, stats):
         '''check levels and turn on hard or insane mode.'''
@@ -486,25 +486,17 @@ def check_level(ai_settings, stats):
         if stats.level >= 6 and stats.level < 12:
             stats.hard_mode = True
         # if its 12 or higher turn on insane mode.
-        elif stats.level >= 12:
+        elif stats.level >= 14:
             stats.hard_mode = False
             stats.insane_mode = True
-        else:
-            ai_settings.increase_speed()
-  
+        ai_settings.increase_speed()
+
 
 def add_score(ai_settings, stats, sb, collisions, sound):
     '''add score and check if high score is broken'''
     for aliens in collisions.values():
         stats.score += ai_settings.alien_points * len(aliens)
         sb.prep_score()
-    check_high_score(stats, sb, sound)
-
-
-def hadd_score(ai_settings, stats, sb, sound, haliens):
-    '''do hard mode scoring.'''
-    stats.score += ai_settings.alien_points * len(haliens)
-    sb.prep_score()
     check_high_score(stats, sb, sound)
 
 
@@ -563,15 +555,15 @@ def create_alien(ai_settings, screen, stats, aliens, alien_number, row_number):
     aliens.add(alien) 
 
 
-def close_game(ai_settings, stats):
+def close_game(stats):
     '''save game before closing'''
     # Save high score.
-    with open("saves/save_data.txt", 'w') as high_score:
-        high_score.write(str(stats.high_score))
+    save_path = Path("saves/save_data.txt")
+    save_path.write_text(str(stats.high_score))
     
     # Close game.
     sys.exit()
-
+    
 
 def update_music(stats, sound):
     # Determine which music to play.

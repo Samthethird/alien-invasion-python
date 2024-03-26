@@ -5,7 +5,7 @@ class Settings():
         '''Initializes the games static settings.'''
         # Display settings.
         self.screen_width = 1200 #1200
-        self.screen_height = 790 #750
+        self.screen_height = 790 #790
         self.bg_color = (230, 230, 230)
         self.stats = stats
         
@@ -30,6 +30,7 @@ class Settings():
         # Score Multiplier
         self.score_scale = 1.15
         
+        self.prev_level = 16
         self.initialize_dynamic_settings()
         self.reset_god_bullet_settings()
 
@@ -59,8 +60,14 @@ class Settings():
 
     def increase_speed(self):
         # Increase the speed settings and alien point value.
-        if self.stats.level < 7:
-            # increase speed until level 7
+        if self.stats.level < 6 or self.stats.level == 9 or self.stats.level == 10:
+            self.speed_up()
+        elif self.stats.level >= 16 and self.stats.level - self.prev_level == 3:
+            self.speed_up()
+            self.prev_level = self.stats.level
+
+    def speed_up(self):
+            # multiply speed
             self.ship_speed_factor *= self.speedup_scale
             self.bullet_speed_factor *= self.speedup_scale
             self.alien_speed_factor *= self.speedup_scale
