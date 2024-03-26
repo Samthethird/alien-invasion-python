@@ -327,24 +327,44 @@ def hard_mode_collisions(stats, g_aliens, collisions, hit):
 def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when and alien is killed.'''
     if collisions:
-        #roll a dice to determine power_up dropped.
-        chance = random.randint(1,200)
+        chance = roll_die(stats)
 
         if chance == 1:
-            # if dice rolled 1 drop a "GodBullet" powerup.
-            for aliens in collisions.values():
-                for alien in aliens:
-                    god_bullet_power_up = GodBulletPowerUp(ai_settings, screen, stats, alien)
-                    # add it to the power_ups on screen, group.
-                    power_ups.add(god_bullet_power_up)
+            drop_god_bullet(ai_settings, screen, stats, power_ups, collisions)
 
         if chance == 2:
-            # if dice rolled 2 drop a "mahcine_gun" powerup.
-            for aliens in collisions.values():
-                for alien in aliens:
-                    machine_gun_power_up = MachineGunPowerUp(ai_settings, screen, stats, alien)
-                    # add it to the power_ups on screen. 
-                    power_ups.add(machine_gun_power_up)
+            drop_machine_gun()
+
+
+def drop_god_bullet(ai_settings, screen, stats, power_ups, collisions):
+    # drop god_bullet.
+    for aliens in collisions.values():
+        for alien in aliens:
+            god_bullet_power_up = GodBulletPowerUp(ai_settings, screen, stats, alien)
+            # add it to the power_ups on screen, group.
+            power_ups.add(god_bullet_power_up)
+
+
+def drop_machine_gun(ai_settings, screen, stats, power_ups, collisions):
+    # if dice rolled 2 drop a "mahcine_gun" powerup.
+    for aliens in collisions.values():
+        for alien in aliens:
+            machine_gun_power_up = MachineGunPowerUp(ai_settings, screen, stats, alien)
+            # add it to the power_ups on screen. 
+            power_ups.add(machine_gun_power_up)
+
+
+def roll_die(stats):
+    #roll a dice to determine power_up dropped.
+    if stats.level < 12:
+        chance = random.randint(1, 200)
+    elif stats.level < 16:
+        chance = random.randint(1,150)
+    elif stats.level > 16:
+        chance = random.randint(1,70)
+    elif stats.level > 20:
+        chance = random.randint(1,30)
+    return chance
 
 
 def update_power_ups(screen_rect, stats, ship, power_ups, god_bullet_eq_instance,
