@@ -6,6 +6,7 @@ from alien import Alien
 from time import sleep
 import random
 import pygame
+import json
 import sys
 
 
@@ -14,7 +15,7 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
     '''Respond to keyboard and mouse activity.'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            close_game(stats)
+            close_game(stats, sound)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, ai_settings, screen, stats, sb, ship,
                                  aliens, bullets, sound, power_ups)
@@ -23,15 +24,15 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens,
-                              bullets, mouse_x, mouse_y)
+                              bullets, mouse_x, mouse_y, sound)
 
 
 def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens, 
-                      bullets, mouse_x, mouse_y):
+                      bullets, mouse_x, mouse_y, sound):
     '''Start the game when the player hits the play button.'''
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked:
-        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets)
+        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
         stats.game_counter += 1
 
 
@@ -56,11 +57,11 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
     elif event.key == pygame.K_SPACE and stats.machine_gun_active:
         stats.shooting = True
     elif event.key == pygame.K_q:
-        close_game(stats)
+        close_game(stats, sound)
     elif event.key == pygame.K_p:
-        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets)
+        start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
     elif event.key == pygame.K_f:
-        end_game(stats, sound, power_ups, ai_settings)
+        end_game(stats, sound, power_ups, ai_settings, sb)
 
 
 def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound):
@@ -79,7 +80,8 @@ def machine_gun_backup(ai_settings, stats):
         ai_settings.bullets_allowed = 1000
 
 
-def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets):
+def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
+    save_game(stats, sound)
     if not stats.game_active:        
         # Reset the games settings.
         ai_settings.initialize_dynamic_settings()
@@ -219,10 +221,12 @@ def ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power
     if stats.ships_left > 1:
         next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups)
     else:
-        end_game(stats, sound, power_ups, ai_settings)
+        end_game(stats, sound, power_ups, ai_settings, sb)
 
 
-def end_game(stats, sound, power_ups, ai_settings):
+def end_game(stats, sound, power_ups, ai_settings, sb):
+    save_game(stats, sound)
+    sb.prep_high_scores()
     # Initiate hit audio.
     
     sound.ship_hit()
@@ -333,7 +337,7 @@ def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
             drop_god_bullet(ai_settings, screen, stats, power_ups, collisions)
 
         if chance == 2:
-            drop_machine_gun()
+            drop_machine_gun(ai_settings, screen, stats, power_ups, collisions)
 
 
 def drop_god_bullet(ai_settings, screen, stats, power_ups, collisions):
@@ -356,14 +360,14 @@ def drop_machine_gun(ai_settings, screen, stats, power_ups, collisions):
 
 def roll_die(stats):
     #roll a dice to determine power_up dropped.
-    if stats.level < 12:
+    if stats.level < 8:
         chance = random.randint(1, 200)
-    elif stats.level < 16:
-        chance = random.randint(1,150)
+    elif stats.level <= 16:
+        chance = random.randint(1, 150)
     elif stats.level > 16:
-        chance = random.randint(1,70)
+        chance = random.randint(1, 70)
     elif stats.level > 20:
-        chance = random.randint(1,30)
+        chance = random.randint(1, 30)
     return chance
 
 
@@ -498,7 +502,7 @@ def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
         # check level and create fleet
         check_level(ai_settings, stats)
         create_fleet(ai_settings, screen, stats, ship, aliens)
-        print(ai_settings.ship_speed_factor)
+
 
 def check_level(ai_settings, stats):
         '''check levels and turn on hard or insane mode.'''
@@ -522,17 +526,9 @@ def add_score(ai_settings, stats, sb, collisions, sound):
 
 def check_high_score(stats, sb, sound):
     '''Check to see if high score has been broken.'''
-    if stats.score > stats.high_score:
-        stats.high_score = stats.score
+    compare(stats, sound)
+    if stats.high_score_beat:
         sb.prep_high_score()
-        stats.high_score_beat = True
-
-        # Play sound effect once.
-        if not stats.run_high_score_s:
-            sound.high_score_broke()
-
-            # Finish loop.
-            stats.run_high_score_s = True
 
 
 def create_fleet(ai_settings, screen, stats, ship, aliens):
@@ -575,15 +571,59 @@ def create_alien(ai_settings, screen, stats, aliens, alien_number, row_number):
     aliens.add(alien) 
 
 
-def close_game(stats):
+def close_game(stats, sound):
     '''save game before closing'''
-    # Save high score.
-    save_path = Path("saves/save_data.txt")
-    save_path.write_text(str(stats.high_score))
-    
+    # Save high scores.
+    save_game(stats, sound)
+
     # Close game.
     sys.exit()
     
+
+def save_game(stats, sound):
+    save_path = Path("saves/save_data.json")
+    compare(stats, sound)
+    high_scores = {
+                  "high" : round(stats.high_score, -1),
+                  "high_2" : round(stats.high_2, -1),
+                  "high_3" : round(stats.high_3, -1)
+                  }
+    high_scores = json.dumps(high_scores)
+    save_path.write_text(high_scores)
+
+
+def compare(stats, sound):
+    if stats.score > stats.high_score:
+        if not stats.high_score_beat:
+            print(1)
+            stats.high_3 = stats.temp_2
+            stats.high_2 = stats.high_score
+            stats.high_score_beat = True
+
+        stats.high_score = stats.score
+        high_score_beat(stats, sound)
+
+    elif stats.score > stats.high_2 and not stats.score == stats.high_score:
+        if not stats.high_2_beat:
+            stats.temp_2 = stats.high_2
+            stats.high_3 = stats.high_2
+            stats.high_2_beat = True
+        stats.high_2 = stats.score
+
+    elif stats.score > stats.high_3 and stats.score != stats.high_score and\
+        stats.score != stats.high_2:
+        stats.high_3 = stats.score
+    print(stats.high_score, stats.high_2, stats.high_3)
+
+def high_score_beat(stats, sound):
+    """everythin that happenes once high_score is broken"""
+
+    # Play sound effect once.
+    if not stats.run_high_score_s:
+        sound.high_score_broke()
+        # Finish loop.
+        stats.run_high_score_s = True
+
 
 def update_music(stats, sound):
     # Determine which music to play.

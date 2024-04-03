@@ -11,8 +11,8 @@ from button import Button
 from sounds import Sound
 from alien import Alien
 from ship import Ship
-import pygame
 from hit import Hit
+import pygame
 
 # to do: 
 # -adjust game progression
@@ -24,6 +24,7 @@ from hit import Hit
 # -health drops
 # -add top three scores.
 # -enchacne god bullet visually
+# -fix scoring bugs
 
 class AlienInvasion():
     '''Class for the game alien invasion.'''
@@ -41,8 +42,9 @@ class AlienInvasion():
         
         # Instances.
         self.play_button = Button(self.ai_settings, self.screen, "Play")
-        self.menu_art = MenuArt(self.ai_settings, self.screen, self.stats)
         self.sb = Scoreboard(self.ai_settings, self.screen, self.stats)
+        self.menu_art = MenuArt(self.ai_settings, self.screen, self.stats, 
+                                self.sb)
         self.bg = BackGround(self.screen)
         self.sound = Sound()
         self.hit = Hit()
@@ -74,7 +76,7 @@ class AlienInvasion():
         while True:
 
             # GAME NOT ACTIVE.
-            gf.events(self.ai_settings, self.screen, 
+            gf.check_events(self.ai_settings, self.screen, 
                             self.stats, self.sb, self.play_button, 
                             self.ship, self.aliens, 
                             self.bullets, self.sound, self.power_ups
@@ -83,7 +85,6 @@ class AlienInvasion():
                                       self.stats, self.ship, self.bullets, 
                                       self.sound
                                       )
-            
             # GAME ACTIVE.
             if self.stats.game_active:
                 self.ship.update()
@@ -110,7 +111,6 @@ class AlienInvasion():
             
             gf.update_music(self.stats, self.sound)
             self.clock.tick(180)
-
 
 if __name__ == "__main__":
     ai = AlienInvasion()

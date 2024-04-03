@@ -1,4 +1,6 @@
+from pathlib import Path
 import pygame
+import json
 
 class GameStats():
     '''Track statistics for Alien Invasion.'''
@@ -9,11 +11,9 @@ class GameStats():
 
         # Start Alien Invasion in an inactive state.
         self.game_active = False
+
         # Reading high_score from save data
-        self.high_score = 0
-        with open("saves/save_data.txt") as high_score:
-            contents = high_score.read()
-        self.high_score = int(contents.rstrip())
+        self.open_high_scores()
             
     def reset_stats(self):
         '''A method for stats that reset each game.'''
@@ -26,7 +26,8 @@ class GameStats():
         self.run_high_score_s = False
         self.game_over_s= False
         self.high_score_beat = False
-
+        self.high_2_beat = False
+        
         # game counter
         self.game_counter = 0
         
@@ -55,3 +56,15 @@ class GameStats():
         '''method for keeping track of music activity'''
         # Whether music is currently playing or not.
         self.music_playing = False
+
+    def open_high_scores(self):
+        '''Read high_scores into memory'''
+        text = Path("saves/save_data.json").read_text() 
+        high_scores = json.loads(text)
+        
+        # assign scores.
+        self.high_score = high_scores['high']
+        self.high_2 = high_scores['high_2']
+        self.high_3 = high_scores['high_3']
+
+        self.temp_2 = high_scores['high_2']

@@ -15,8 +15,10 @@ class Scoreboard():
 
         # Font settings for scoring information
         self.text_color = (200, 250, 200)
+        self.text_color2 = (150, 250, 200)
         self.font = pygame.font.SysFont(None, 48)
-        
+        self.high_font = pygame.font.SysFont(None, 64)
+
         # Preapare initial score images.
         self.prep_images()
 
@@ -27,6 +29,7 @@ class Scoreboard():
         self.prep_level()
         self.prep_achivement()
         self.prep_ships()
+        self.prep_high_scores()
 
     def show_score(self):
         '''Draw all scores and ships to the screen'''
@@ -34,7 +37,6 @@ class Scoreboard():
         self.screen.blit(self.high_score_image, self.high_score_image_rect)
         self.screen.blit(self.level_image, self.level_image_rect)
         self.ships.draw(self.screen)
-
 
     def prep_score(self):
         '''Trun the score into a rendered image.'''
@@ -48,8 +50,7 @@ class Scoreboard():
 
     def prep_high_score(self):
         '''Turn the hight score into a rendered image.'''
-        high_score = round(self.stats.high_score, -1)
-        high_score_str = "{:,}".format(high_score)
+        high_score_str = "{:,}".format(self.stats.high_score)
         self.high_score_image = self.font.render(high_score_str, True, self.text_color)
         
         # position high score.
@@ -109,3 +110,44 @@ class Scoreboard():
             self.achivement_image = self.font.render(achivement_str, True,
                                     (160, 4, 8))
         
+    def draw_high_scores(self):
+        self.screen.blit(self.high_image, self.high_rect)
+        self.screen.blit(self.high_2_image, self.high_2_image_rect)
+        self.screen.blit(self.high_3_image, self.high_3_image_rect)
+        self.screen.blit(self.text_image, self.text_image_rect)
+
+    def prep_high_scores(self):
+        self.prep_high()
+        self.prep_high_2()
+        self.prep_high_3()
+        self.prep_high_text()
+
+    def prep_high_text(self):
+        self.text_image = self.high_font.render("Top Scores!", True, self.text_color2)
+        self.text_image_rect = self.text_image.get_rect()
+        self.text_image_rect.centerx = self.high_2_image_rect.centerx
+        self.text_image_rect.centery = self.high_rect.centery - 70
+
+    def prep_high(self):
+        high_str = "1. {:,}".format(self.stats.high_score)
+        self.high_image = self.high_font.render(high_str, True,
+                                             self.text_color2)
+
+        self.high_rect = self.high_score_image.get_rect()
+        self.high_rect.center = (950, 300)
+    
+    def prep_high_2(self):
+        high_2_str = "2. {:,}".format(self.stats.high_2)
+        self.high_2_image = self.font.render(high_2_str, True,
+                                             self.text_color2)
+        self.high_2_image_rect = self.high_2_image.get_rect()
+        self.high_2_image_rect.centerx = self.high_rect.centerx + 30
+        self.high_2_image_rect.centery = self.high_rect.centery + 100
+        
+    def prep_high_3(self):
+        high_3_str = "3. {:,}".format(self.stats.high_3)
+        self.high_3_image = self.font.render(high_3_str, True,
+                                             self.text_color2)
+        self.high_3_image_rect = self.high_3_image.get_rect()
+        self.high_3_image_rect.centerx = self.high_rect.centerx + 30
+        self.high_3_image_rect.centery = self.high_2_image_rect.centery + 70
