@@ -33,10 +33,11 @@ class Scoreboard():
 
     def show_score(self):
         '''Draw all scores and ships to the screen'''
-        self.screen.blit(self.score_image, self.score_rect)
+        if self.stats.game_active:
+            self.screen.blit(self.level_image, self.level_image_rect)
+            self.ships.draw(self.screen)
+            self.screen.blit(self.score_image, self.score_rect)
         self.screen.blit(self.high_score_image, self.high_score_image_rect)
-        self.screen.blit(self.level_image, self.level_image_rect)
-        self.ships.draw(self.screen)
 
     def prep_score(self):
         '''Trun the score into a rendered image.'''

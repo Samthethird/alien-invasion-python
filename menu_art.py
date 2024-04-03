@@ -42,8 +42,8 @@ class MenuArt():
         pygame.draw.rect(self.screen, self.ai_settings.bullet_color, rect)
 
     def create_high_surface(self):
-        object = pygame.Surface((300, 370), pygame.SRCALPHA)
-        object.fill((200, 250, 200, 25))
+        object = pygame.Surface((300, 300), pygame.SRCALPHA)
+        object.fill((200, 250, 200, 15))
         object_rect = object.get_rect()
         object_rect.top = self.sb.text_image_rect.top
         object_rect.centerx = self.sb.text_image_rect.centerx

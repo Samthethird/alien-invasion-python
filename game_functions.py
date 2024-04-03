@@ -595,7 +595,6 @@ def save_game(stats, sound):
 def compare(stats, sound):
     if stats.score > stats.high_score:
         if not stats.high_score_beat:
-            print(1)
             stats.high_3 = stats.temp_2
             stats.high_2 = stats.high_score
             stats.high_score_beat = True
@@ -613,7 +612,6 @@ def compare(stats, sound):
     elif stats.score > stats.high_3 and stats.score != stats.high_score and\
         stats.score != stats.high_2:
         stats.high_3 = stats.score
-    print(stats.high_score, stats.high_2, stats.high_3)
 
 def high_score_beat(stats, sound):
     """everythin that happenes once high_score is broken"""
