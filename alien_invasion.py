@@ -96,7 +96,7 @@ class AlienInvasion():
                                 self.ship, self.aliens, self.bullets, self.sound, 
                                 self.power_ups
                                 )
-                gf.update_power_ups(self.screen.get_rect(), self.stats, 
+                gf.update_power_ups(self.sb, self.screen.get_rect(), self.stats, 
                                     self.ship, self.power_ups, 
                                     self.god_bullet_eq_instance,
                                     self.machine_gun_eq_instance
@@ -112,6 +112,7 @@ class AlienInvasion():
             gf.update_music(self.stats, self.sound)
             self.clock.tick(180)
 
+            
 if __name__ == "__main__":
     ai = AlienInvasion()
     ai.run_game()

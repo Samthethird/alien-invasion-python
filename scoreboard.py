@@ -152,3 +152,18 @@ class Scoreboard():
         self.high_3_image_rect = self.high_3_image.get_rect()
         self.high_3_image_rect.centerx = self.high_rect.centerx + 30
         self.high_3_image_rect.centery = self.high_2_image_rect.centery + 70
+
+
+    def prep_hint(self):
+        # arguments
+        font = pygame.font.SysFont(None, 64)
+        Blue = (60, 60, 120)
+        message = "Hold space to rapid fire!"
+
+        # prep
+        self.image = font.render(message, True, Blue)
+        self.image_rect = self.image.get_rect()
+        self.image_rect.center = (600, 650)
+
+    def draw_hint(self):
+        self.screen.blit(self.image, self.image_rect)

@@ -140,8 +140,16 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
     # Draw score information.
     sb.show_score()
 
+    # Draw hints
+    if stats.hint_activated and not stats.hint_run:
+        sb.draw_hint()
+
     # Display the most recent screen.
     pygame.display.flip()
+
+    if not stats.hint_run and stats.hint_activated:
+        pygame.time.wait(2500)
+        stats.hint_run = True
 
 
 def display_menu_achivement(stats, sb, sound):
@@ -329,7 +337,7 @@ def hard_mode_collisions(stats, g_aliens, collisions, hit):
 
 
 def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
-    '''Randomly drop a powerup when and alien is killed.'''
+    '''Randomly drop a powerup when an alien is killed.'''
     if collisions:
         chance = roll_die(stats)
 
@@ -371,7 +379,7 @@ def roll_die(stats):
     return chance
 
 
-def update_power_ups(screen_rect, stats, ship, power_ups, god_bullet_eq_instance,
+def update_power_ups(sb, screen_rect, stats, ship, power_ups, god_bullet_eq_instance,
                      machine_gun_eq_instance):
     '''
     if there is a power up is on screen make it move down by callling 
@@ -389,17 +397,17 @@ def update_power_ups(screen_rect, stats, ship, power_ups, god_bullet_eq_instance
             collisions = ship_power_up_collisions(ship, power_ups)
 
             # add power if collisions happened.
-            bestow_power(stats, power_up, collisions, god_bullet_eq_instance, 
+            bestow_power(sb, stats, power_up, collisions, god_bullet_eq_instance, 
                  machine_gun_eq_instance)
 
-                 
+
 def check_missed_power_up(screen_rect, power_up, power_ups):
     '''deleting missed power_ups.'''
     if power_up.rect.top >= screen_rect.bottom:
         power_ups.remove(power_up)
 
 
-def bestow_power(stats, power_up, collisions, god_bullet_eq_instance, 
+def bestow_power(sb, stats, power_up, collisions, god_bullet_eq_instance, 
                  machine_gun_eq_instance):
     '''add power if collision happend.'''
     if collisions:
@@ -413,6 +421,11 @@ def bestow_power(stats, power_up, collisions, god_bullet_eq_instance,
         # give_power.
         power_up.give_power()
         
+        # insert hint for the first time.
+        if power_up == machine_gun_eq_instance and not stats.hint_activated:
+            sb.prep_hint()
+            stats.hint_activated = True
+
 
 def ship_power_up_collisions(ship, power_ups):
     '''determine collision between ship and powerup.'''
@@ -586,7 +599,7 @@ def save_game(stats, sound):
     high_scores = {
                   "high" : round(stats.high_score, -1),
                   "high_2" : round(stats.high_2, -1),
-                  "high_3" : round(stats.high_3, -1)
+                  "high_3" : round(stats.high_3, -1),
                   }
     high_scores = json.dumps(high_scores)
     save_path.write_text(high_scores)

@@ -11,10 +11,12 @@ class GameStats():
 
         # Start Alien Invasion in an inactive state.
         self.game_active = False
+        self.hint_activated = False
+        self.hint_run = False
 
         # Reading high_score from save data
         self.open_high_scores()
-            
+        
     def reset_stats(self):
         '''A method for stats that reset each game.'''
         # scores
@@ -65,6 +67,5 @@ class GameStats():
         # assign scores.
         self.high_score = high_scores['high']
         self.high_2 = high_scores['high_2']
-        self.high_3 = high_scores['high_3']
-
         self.temp_2 = high_scores['high_2']
+        self.high_3 = high_scores['high_3']
