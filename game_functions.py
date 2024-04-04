@@ -57,12 +57,8 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens,
         fire_bullet(ai_settings, screen, stats, ship, bullets, sound, particle_system)
     elif event.key == pygame.K_SPACE and stats.machine_gun_active:
         stats.shooting = True
-    elif event.key == pygame.K_q:
-        close_game(stats, sound)
     elif event.key == pygame.K_p:
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
-    elif event.key == pygame.K_f:
-        end_game(stats, sound, power_ups, ai_settings, sb)
 
 
 def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound, 
@@ -391,14 +387,16 @@ def drop_machine_gun(ai_settings, screen, stats, power_ups, collisions):
 
 def roll_die(stats):
     #roll a dice to determine power_up dropped.
-    if stats.level < 8:
+    if stats.level < 6:
         chance = random.randint(1, 200)
-    elif stats.level <= 16:
+    elif stats.level < 10:
         chance = random.randint(1, 150)
-    elif stats.level > 16:
-        chance = random.randint(1, 70)
-    elif stats.level > 20:
+    elif stats.level < 15:
+        chance = random.randint(1, 80)
+    elif stats.level <= 18:
         chance = random.randint(1, 30)
+    elif stats.level > 18:
+        chance= random.randint(1,10)
     return chance
 
 
