@@ -362,7 +362,7 @@ def hard_mode_collisions(stats, g_aliens, collisions, hit):
 def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when an alien is killed.'''
     if collisions:
-        chance = random.randint(1,2)
+        chance = roll_die(stats)
 
         if chance == 1:
             drop_god_bullet(ai_settings, screen, stats, power_ups, collisions)
