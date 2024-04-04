@@ -11,14 +11,14 @@ import sys
 
 
 def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
-                 bullets, sound, power_ups):
+                 bullets, sound, power_ups, particle_system):
     '''Respond to keyboard and mouse activity.'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             close_game(stats, sound)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, ai_settings, screen, stats, sb, ship,
-                                 aliens, bullets, sound, power_ups)
+                                 aliens, bullets, sound, power_ups, particle_system)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, stats, ship) 
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -46,14 +46,15 @@ def check_keyup_events(event, stats, ship):
         stats.shooting = False
 
 
-def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bullets, sound, power_ups):
+def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, 
+                         bullets, sound, power_ups, particle_system):
     '''Respond to key presses.'''
     if event.key == pygame.K_d:
         ship.moving_right = True
     elif event.key == pygame.K_a:
         ship.moving_left = True
     elif event.key == pygame.K_SPACE and not stats.machine_gun_active:
-        fire_bullet(ai_settings, screen, stats, ship, bullets, sound)
+        fire_bullet(ai_settings, screen, stats, ship, bullets, sound, particle_system)
     elif event.key == pygame.K_SPACE and stats.machine_gun_active:
         stats.shooting = True
     elif event.key == pygame.K_q:
@@ -64,12 +65,14 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
         end_game(stats, sound, power_ups, ai_settings, sb)
 
 
-def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound):
+def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound, 
+                           particle_system):
     machine_gun_backup(ai_settings, stats)
     now = pygame.time.get_ticks()
     if stats.shooting:
         if now - stats.start_time >= 140:
-            fire_bullet(ai_settings, screen, stats, ship, bullets, sound)
+            fire_bullet(ai_settings, screen, stats, ship, bullets, sound, 
+                        particle_system)
                 
             
 def machine_gun_backup(ai_settings, stats):
@@ -110,7 +113,7 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
 
 
 def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
-                  play_button, sound, menu_art, power_ups, bg):
+                  play_button, sound, menu_art, power_ups, bg, particle_system):
     '''Update the images on screen and flip to a new screen.'''
     # Redraw the screen during each pass through the loop.
     bg.blitme()
@@ -120,6 +123,8 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
         for bullet in bullets.sprites():
             bullet.draw_bullet()
         
+        particle_system.draw(screen)
+
         ship.blitme()
         aliens.draw(screen)
         
@@ -144,6 +149,7 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
     if stats.hint_activated and not stats.hint_run:
         sb.draw_hint()
 
+    
     # Display the most recent screen.
     pygame.display.flip()
 
@@ -170,16 +176,33 @@ def display_menu_achivement(stats, sb, sound):
         stats.game_over_s = False
 
 
-def fire_bullet(ai_settings, screen, stats, ship, bullets, sound):
+def check_particles(ai_settings, particle_system, bullets, stats):
+    if stats.god_bullet_active:
+        for bullet in bullets:
+            particle_system.add_particle(bullet.rect.x,
+                                        bullet.rect.y + bullet.rect.height // 2,
+                                        ai_settings.god_bullet_color)
+            particle_system.add_particle(bullet.rect.x + bullet.rect.width,
+                                        bullet.rect.y + bullet.rect.height // 2,
+                                        ai_settings.god_bullet_color)
+    particle_system.update()
+
+
+def fire_bullet(ai_settings, screen, stats, ship, bullets, sound,
+                particle_system):
     '''Make a bullet if limit not reached.'''
     # Create a bullet and add it to the bullets group.
     if len(bullets) < ai_settings.bullets_allowed:
         new_bullet = Bullet(ai_settings, screen, ship)
         bullets.add(new_bullet)
 
-        #initiate sound effect.
+        #initiate sound effect and particles.
         if stats.game_active:
-            sound.fire_bullet()
+            if stats.god_bullet_active:
+                sound.fire_god_bullet()
+
+            else:
+                sound.fire_bullet()
         stats.start_time = pygame.time.get_ticks()
 
 
@@ -339,7 +362,7 @@ def hard_mode_collisions(stats, g_aliens, collisions, hit):
 def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when an alien is killed.'''
     if collisions:
-        chance = roll_die(stats)
+        chance = random.randint(1,2)
 
         if chance == 1:
             drop_god_bullet(ai_settings, screen, stats, power_ups, collisions)

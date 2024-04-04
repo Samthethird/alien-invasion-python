@@ -1,5 +1,6 @@
 from power_up_machine_gun import MachineGunPowerUp
 from power_up_god_bullet import GodBulletPowerUp
+from particles import *
 from background import BackGround
 from scoreboard import Scoreboard
 from game_stats import GameStats
@@ -14,17 +15,6 @@ from ship import Ship
 from hit import Hit
 import pygame
 
-# to do: 
-# -adjust game progression
-# -add more self.power_ups
-# -add texture to powerup
-# -overall polish
-# -add more menu options.
-# ?add more spice to gameplay
-# -health drops
-# -add top three scores.
-# -enchacne god bullet visually
-# -fix scoring bugs
 
 class AlienInvasion():
     '''Class for the game alien invasion.'''
@@ -41,6 +31,7 @@ class AlienInvasion():
         pygame.display.set_caption("Alien Invasion")
         
         # Instances.
+        self.particle_system = ParticleSystem()
         self.play_button = Button(self.ai_settings, self.screen, "Play")
         self.sb = Scoreboard(self.ai_settings, self.screen, self.stats)
         self.menu_art = MenuArt(self.ai_settings, self.screen, self.stats, 
@@ -66,6 +57,7 @@ class AlienInvasion():
             )
 
     def run_game(self):
+        self.clock.tick(180)
         '''run all game functions'''
         # Make initial alien fleet. 
         gf.create_fleet(self.ai_settings, self.screen,
@@ -79,11 +71,14 @@ class AlienInvasion():
             gf.check_events(self.ai_settings, self.screen, 
                             self.stats, self.sb, self.play_button, 
                             self.ship, self.aliens, 
-                            self.bullets, self.sound, self.power_ups
+                            self.bullets, self.sound, self.power_ups,
+                            self.particle_system
                             )
+            gf.check_particles(self.ai_settings, self.particle_system, 
+                                self.bullets, self.stats)
             gf.check_machine_gun_mode(self.ai_settings, self.screen, 
                                       self.stats, self.ship, self.bullets, 
-                                      self.sound
+                                      self.sound, self.particle_system
                                       )
             # GAME ACTIVE.
             if self.stats.game_active:
@@ -106,13 +101,14 @@ class AlienInvasion():
                             )
             gf.update_screen(self.ai_settings, self.screen, self.stats, self.sb, 
                             self.ship, self.aliens, self.bullets, self.play_button, 
-                            self.sound, self.menu_art, self.power_ups, self.bg
+                            self.sound, self.menu_art, self.power_ups, self.bg,
+                            self.particle_system
                             )
             
             gf.update_music(self.stats, self.sound)
-            self.clock.tick(180)
 
             
 if __name__ == "__main__":
+
     ai = AlienInvasion()
     ai.run_game()

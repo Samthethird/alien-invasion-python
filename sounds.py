@@ -55,3 +55,9 @@ class Sound():
         pygame.mixer.music.load("sound_effects/music/menu_music.mp3")
         pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
+
+    def fire_god_bullet(self):
+        file_name = "sound_effects/god_bullet_shoot.wav"
+        god_bullet_s = pygame.mixer.Sound(file_name)
+        god_bullet_s.set_volume(0.2)
+        god_bullet_s.play()
