@@ -60,7 +60,6 @@ class AlienInvasion():
             )
 
     def run_game(self):
-        self.clock.tick(180)
         '''run all game functions'''
         # Make initial alien fleet. 
         gf.create_fleet(self.ai_settings, self.screen,
@@ -83,8 +82,12 @@ class AlienInvasion():
                                       self.stats, self.ship, self.bullets, 
                                       self.sound, self.particle_system
                                       )
+            
             # GAME ACTIVE.
             if self.stats.game_active:
+                # lock on 180 fps
+                self.clock.tick(180)
+
                 self.ship.update()
                 gf.update_bullet(self.ai_settings, self.screen, self.stats, 
                                 self.sb, self.ship, self.aliens, self.bullets,
