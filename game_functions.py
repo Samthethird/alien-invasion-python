@@ -59,6 +59,8 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens,
         stats.shooting = True
     elif event.key == pygame.K_p:
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
+    elif event.key == pygame.K_q:
+        close_game(stats, sound)
 
 
 def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound, 
@@ -127,8 +129,7 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
         # draw each power_up currently on screen.
         if power_ups:
             for power_up in power_ups.sprites():
-                power_up.draw_power_up()
-
+                power_up.blitme()
 
     # Draw the play button and the menu if the game is inactive.
     elif not stats.game_active:
@@ -358,7 +359,7 @@ def hard_mode_collisions(stats, g_aliens, collisions, hit):
 def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when an alien is killed.'''
     if collisions:
-        chance = roll_die(stats)
+        chance = 2
 
         if chance == 1:
             drop_god_bullet(ai_settings, screen, stats, power_ups, collisions)
@@ -400,7 +401,7 @@ def roll_die(stats):
     return chance
 
 
-def update_power_ups(sb, screen_rect, stats, ship, power_ups, god_bullet_eq_instance,
+def update_power_ups(sound, sb, screen_rect, stats, ship, power_ups, god_bullet_eq_instance,
                      machine_gun_eq_instance):
     '''
     if there is a power up is on screen make it move down by callling 
@@ -418,7 +419,7 @@ def update_power_ups(sb, screen_rect, stats, ship, power_ups, god_bullet_eq_inst
             collisions = ship_power_up_collisions(ship, power_ups)
 
             # add power if collisions happened.
-            bestow_power(sb, stats, power_up, collisions, god_bullet_eq_instance, 
+            bestow_power(sound, sb, stats, power_up, collisions, god_bullet_eq_instance, 
                  machine_gun_eq_instance)
 
 
@@ -428,7 +429,7 @@ def check_missed_power_up(screen_rect, power_up, power_ups):
         power_ups.remove(power_up)
 
 
-def bestow_power(sb, stats, power_up, collisions, god_bullet_eq_instance, 
+def bestow_power(sound, sb, stats, power_up, collisions, god_bullet_eq_instance, 
                  machine_gun_eq_instance):
     '''add power if collision happend.'''
     if collisions:
@@ -446,6 +447,9 @@ def bestow_power(sb, stats, power_up, collisions, god_bullet_eq_instance,
         if power_up == machine_gun_eq_instance and not stats.hint_activated:
             sb.prep_hint()
             stats.hint_activated = True
+
+        # activate sound
+        sound.got_power_up()
 
 
 def ship_power_up_collisions(ship, power_ups):

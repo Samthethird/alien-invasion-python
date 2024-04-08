@@ -1,4 +1,5 @@
 from power_up_base import PowerUp
+import pygame
 
 class GodBulletPowerUp(PowerUp):
     '''child class from PowerUp for GodBulletPowerUp.'''
@@ -7,7 +8,10 @@ class GodBulletPowerUp(PowerUp):
         '''initialize parent settings'''
         super().__init__(ai_settings, screen, stats, alien)
         self.color = ai_settings.god_bullet_color
+        self.image_location = "images/god_bullet.png"
 
+        self.update_location()
+        
     def give_power(self):
         '''change the game settings, to apply power.'''
         self.ai_settings.bullet_width = 30
@@ -22,8 +26,8 @@ class GodBulletPowerUp(PowerUp):
 
     def __eq__(self, other):
         if isinstance(other, GodBulletPowerUp):
-            return self.color == other.color
+            return self.image_location == other.image_location
         return False
     
     def __hash__(self):
-        return hash(self.color)
+        return hash(self.image_location)

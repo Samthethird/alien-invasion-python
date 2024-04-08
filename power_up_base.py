@@ -8,35 +8,33 @@ class PowerUp(Sprite):
         """initialize attributes."""
         super().__init__()
         self.ai_settings = ai_settings
-        self.screen = screen
-        self.color = (0,0,0)
+        self.screen = screen    
         self.alien = alien 
         self.start_time = int()
         self.stats = stats
         
-        # Creat power-up rect and position it.
-        self.rect = pygame.Rect(0, 0 ,self.ai_settings.cube_width,
-                                self.ai_settings.cube_height)
+        # power activity state
+        self.power_active = False
+
+    def update_location(self):
+        # Load power-up image and position it.
+        self.image = pygame.image.load(self.image_location)
+        self.rect = self.image.get_rect()
         self.rect.top = self.alien.rect.bottom
         self.rect.centerx = self.alien.rect.centerx
         
         # accurate location.
         self.y = float(self.rect.y)
 
-        # power activity state
-        self.power_active = False
-
     def update_power_up(self):
         """make the power_up have a smooth descent"""
         self.y += self.ai_settings.cube_speed
         self.rect.y = self.y
 
-    def draw_power_up(self):
+    def blitme(self):
         '''draw the powerUP'''
-        pygame.draw.rect(self.screen, 
-                        self.color,
-                        self.rect)
-
+        self.screen.blit(self.image, self.rect)
+        
     def get_start_time(self):
         '''get the time when the power was give.'''
         self.start_time = pygame.time.get_ticks()

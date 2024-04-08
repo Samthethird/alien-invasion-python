@@ -3,7 +3,6 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
 from power_up_machine_gun import MachineGunPowerUp
 from power_up_god_bullet import GodBulletPowerUp
-from particles import *
 from background import BackGround
 from scoreboard import Scoreboard
 from game_stats import GameStats
@@ -14,11 +13,17 @@ import game_functions as gf
 from button import Button
 from sounds import Sound
 from alien import Alien
+from particles import *
 from ship import Ship
 from hit import Hit
 import pygame
 
-
+# 1.add particle to falling power_ups.
+# 2.add health drops.
+# 3.add three bullet powerup.
+# 4.morepowerups.
+# 5.add pause and menu.
+# 6.
 class AlienInvasion():
     '''Class for the game alien invasion.'''
 
@@ -97,8 +102,8 @@ class AlienInvasion():
                                 self.ship, self.aliens, self.bullets, self.sound, 
                                 self.power_ups
                                 )
-                gf.update_power_ups(self.sb, self.screen.get_rect(), self.stats, 
-                                    self.ship, self.power_ups, 
+                gf.update_power_ups(self.sound , self.sb, self.screen.get_rect(),
+                                    self.stats, self.ship, self.power_ups, 
                                     self.god_bullet_eq_instance,
                                     self.machine_gun_eq_instance
                                     )
