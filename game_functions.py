@@ -18,7 +18,7 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
             close_game(stats, sound)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, ai_settings, screen, stats, sb, ship,
-                                 aliens, bullets, sound, power_ups, particle_system)
+                                 aliens, bullets, sound,)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, stats, ship) 
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -47,14 +47,14 @@ def check_keyup_events(event, stats, ship):
 
 
 def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, 
-                         bullets, sound, power_ups, particle_system):
+                         bullets, sound):
     '''Respond to key presses.'''
     if event.key == pygame.K_d:
         ship.moving_right = True
     elif event.key == pygame.K_a:
         ship.moving_left = True
     elif event.key == pygame.K_SPACE and not stats.machine_gun_active:
-        fire_bullet(ai_settings, screen, stats, ship, bullets, sound, particle_system)
+        fire_bullet(ai_settings, screen, stats, ship, bullets, sound)
     elif event.key == pygame.K_SPACE and stats.machine_gun_active:
         stats.shooting = True
     elif event.key == pygame.K_p:
@@ -70,7 +70,7 @@ def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound,
     if stats.shooting:
         if now - stats.start_time >= 140:
             fire_bullet(ai_settings, screen, stats, ship, bullets, sound, 
-                        particle_system)
+                        )
                 
             
 def machine_gun_backup(ai_settings, stats):
@@ -198,21 +198,21 @@ def check_god_bullet_particles(ai_settings, stats, bullets, particle_system):
                                         bullet.rect.x,
                                         bullet.rect.y + bullet.rect.height // 2,
                                         ai_settings.god_bullet_color,
-                                        dx=(-1.7, 1.7), dy=(-0.3, 2), 
-                                        life_time=55, size=3
+                                        dx=(-1.4, 1.4), dy=(-0.3, 2), 
+                                        life_time=51, size=3
                                         )
             
             particle_system.add_particle(
                                         bullet.rect.x + bullet.rect.width,
                                         bullet.rect.y + bullet.rect.height // 2,
                                         ai_settings.god_bullet_color,
-                                        dx=(-1.7, 1.7), dy=(-0.3, 2), 
-                                        life_time=55, size=3
+                                        dx=(-1.4, 1.4), dy=(-0.3, 2), 
+                                        life_time=51, size=3
                                         )
 
 
 def fire_bullet(ai_settings, screen, stats, ship, bullets, sound,
-                particle_system):
+                ):
     '''Make a bullet if limit not reached.'''
     # Create a bullet and add it to the bullets group.
     if len(bullets) < ai_settings.bullets_allowed:
