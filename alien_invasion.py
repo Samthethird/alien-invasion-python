@@ -23,7 +23,10 @@ import pygame
 # 3.add three bullet powerup.
 # 4.morepowerups.
 # 5.add pause and menu.
-# 6.
+# 6.improve main menu
+# 7.add permenant powerups
+# 8.make op powerups rare make weak powerups common
+
 class AlienInvasion():
     '''Class for the game alien invasion.'''
 
@@ -40,6 +43,7 @@ class AlienInvasion():
         
         # Instances.
         self.particle_system = ParticleSystem()
+        self.F_P_S = FallingParticlesystem()
         self.play_button = Button(self.ai_settings, self.screen, "Play")
         self.sb = Scoreboard(self.ai_settings, self.screen, self.stats)
         self.menu_art = MenuArt(self.ai_settings, self.screen, self.stats, 
@@ -82,7 +86,8 @@ class AlienInvasion():
                             self.particle_system
                             )
             gf.check_particles(self.ai_settings, self.particle_system, 
-                                self.bullets, self.stats)
+                               self.F_P_S, self.bullets, 
+                               self.stats, self.power_ups)
             gf.check_machine_gun_mode(self.ai_settings, self.screen, 
                                       self.stats, self.ship, self.bullets, 
                                       self.sound, self.particle_system
@@ -90,7 +95,7 @@ class AlienInvasion():
             
             # GAME ACTIVE.
             if self.stats.game_active:
-                # lock on 180 fps
+                # lock on 180 F_P_S
                 self.clock.tick(180)
 
                 self.ship.update()
@@ -113,7 +118,7 @@ class AlienInvasion():
             gf.update_screen(self.ai_settings, self.screen, self.stats, self.sb, 
                             self.ship, self.aliens, self.bullets, self.play_button, 
                             self.sound, self.menu_art, self.power_ups, self.bg,
-                            self.particle_system
+                            self.particle_system, self.F_P_S, 
                             )
             
             gf.update_music(self.stats, self.sound)

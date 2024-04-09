@@ -111,7 +111,8 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
 
 
 def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
-                  play_button, sound, menu_art, power_ups, bg, particle_system):
+                  play_button, sound, menu_art, power_ups, bg, particle_system,
+                  F_P_S):
     '''Update the images on screen and flip to a new screen.'''
     # Redraw the screen during each pass through the loop.
     bg.blitme()
@@ -122,6 +123,7 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
             bullet.draw_bullet()
         
         particle_system.draw(screen)
+        F_P_S.draw(screen)
 
         ship.blitme()
         aliens.draw(screen)
@@ -173,7 +175,7 @@ def display_menu_achivement(stats, sb, sound):
         stats.game_over_s = False
 
 
-def check_particles(ai_settings, particle_system, bullets, stats):
+def check_particles(ai_settings, particle_system, F_P_S, bullets, stats, power_ups):
     if stats.god_bullet_active:
         for bullet in bullets:
             particle_system.add_particle(bullet.rect.x,
@@ -182,7 +184,15 @@ def check_particles(ai_settings, particle_system, bullets, stats):
             particle_system.add_particle(bullet.rect.x + bullet.rect.width,
                                         bullet.rect.y + bullet.rect.height // 2,
                                         ai_settings.god_bullet_color)
+    if power_ups:
+        for powerup in power_ups:
+            F_P_S.add_particle(
+                powerup.rect.x + powerup.rect.width //2,
+                powerup.rect.y + powerup.rect.height,
+                (187, 165, 61)
+            )
     particle_system.update()
+    F_P_S.update()
 
 
 def fire_bullet(ai_settings, screen, stats, ship, bullets, sound,
@@ -359,7 +369,7 @@ def hard_mode_collisions(stats, g_aliens, collisions, hit):
 def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
     '''Randomly drop a powerup when an alien is killed.'''
     if collisions:
-        chance = 2
+        chance = random.randint(1,2)
 
         if chance == 1:
             drop_god_bullet(ai_settings, screen, stats, power_ups, collisions)
