@@ -112,7 +112,7 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
 
 def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
                   play_button, sound, menu_art, power_ups, bg, particle_system,
-                  F_P_S):
+                  ):
     '''Update the images on screen and flip to a new screen.'''
     # Redraw the screen during each pass through the loop.
     bg.blitme()
@@ -123,7 +123,6 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
             bullet.draw_bullet()
         
         particle_system.draw(screen)
-        F_P_S.draw(screen)
 
         ship.blitme()
         aliens.draw(screen)
@@ -175,24 +174,41 @@ def display_menu_achivement(stats, sb, sound):
         stats.game_over_s = False
 
 
-def check_particles(ai_settings, particle_system, F_P_S, bullets, stats, power_ups):
-    if stats.god_bullet_active:
-        for bullet in bullets:
-            particle_system.add_particle(bullet.rect.x,
-                                        bullet.rect.y + bullet.rect.height // 2,
-                                        ai_settings.god_bullet_color)
-            particle_system.add_particle(bullet.rect.x + bullet.rect.width,
-                                        bullet.rect.y + bullet.rect.height // 2,
-                                        ai_settings.god_bullet_color)
+def check_particles(ai_settings, particle_system, bullets, stats, power_ups):
+    check_god_bullet_particles(ai_settings, stats, bullets, particle_system)
+    check_power_up_particles(power_ups, particle_system)
+    particle_system.update()
+
+
+def check_power_up_particles(power_ups, particle_system):
     if power_ups:
         for powerup in power_ups:
-            F_P_S.add_particle(
+            particle_system.add_particle(
                 powerup.rect.x + powerup.rect.width //2,
                 powerup.rect.y + powerup.rect.height,
-                (187, 165, 61)
+                (187, 165, 61), dx=(-0.7, 0.7), dy=(-1, 0.3),
+                life_time=100, size=3
             )
-    particle_system.update()
-    F_P_S.update()
+
+
+def check_god_bullet_particles(ai_settings, stats, bullets, particle_system):
+    if stats.god_bullet_active:
+        for bullet in bullets:
+            particle_system.add_particle(
+                                        bullet.rect.x,
+                                        bullet.rect.y + bullet.rect.height // 2,
+                                        ai_settings.god_bullet_color,
+                                        dx=(-1.7, 1.7), dy=(-0.3, 2), 
+                                        life_time=55, size=3
+                                        )
+            
+            particle_system.add_particle(
+                                        bullet.rect.x + bullet.rect.width,
+                                        bullet.rect.y + bullet.rect.height // 2,
+                                        ai_settings.god_bullet_color,
+                                        dx=(-1.7, 1.7), dy=(-0.3, 2), 
+                                        life_time=55, size=3
+                                        )
 
 
 def fire_bullet(ai_settings, screen, stats, ship, bullets, sound,

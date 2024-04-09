@@ -18,7 +18,6 @@ from ship import Ship
 from hit import Hit
 import pygame
 
-# 1.add particle to falling power_ups.
 # 2.add health drops.
 # 3.add three bullet powerup.
 # 4.morepowerups.
@@ -43,7 +42,6 @@ class AlienInvasion():
         
         # Instances.
         self.particle_system = ParticleSystem()
-        self.F_P_S = FallingParticlesystem()
         self.play_button = Button(self.ai_settings, self.screen, "Play")
         self.sb = Scoreboard(self.ai_settings, self.screen, self.stats)
         self.menu_art = MenuArt(self.ai_settings, self.screen, self.stats, 
@@ -86,7 +84,7 @@ class AlienInvasion():
                             self.particle_system
                             )
             gf.check_particles(self.ai_settings, self.particle_system, 
-                               self.F_P_S, self.bullets, 
+                               self.bullets, 
                                self.stats, self.power_ups)
             gf.check_machine_gun_mode(self.ai_settings, self.screen, 
                                       self.stats, self.ship, self.bullets, 
@@ -118,7 +116,7 @@ class AlienInvasion():
             gf.update_screen(self.ai_settings, self.screen, self.stats, self.sb, 
                             self.ship, self.aliens, self.bullets, self.play_button, 
                             self.sound, self.menu_art, self.power_ups, self.bg,
-                            self.particle_system, self.F_P_S, 
+                            self.particle_system, 
                             )
             
             gf.update_music(self.stats, self.sound)
