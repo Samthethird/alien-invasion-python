@@ -79,7 +79,6 @@ class Scoreboard():
         self.achivement_image_rect.top = self.high_score_image_rect.bottom + 10
         self.achivement_image_rect.centerx = self.high_score_image_rect.centerx
 
-        
     def draw_achivement(self):
         self.screen.blit(self.achivement_image, self.achivement_image_rect)
 

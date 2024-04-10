@@ -4,6 +4,7 @@ from bullet import Bullet
 from pathlib import Path
 from alien import Alien
 from time import sleep
+from ship import Ship
 import random
 import pygame
 import json
@@ -18,7 +19,7 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
             close_game(stats, sound)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, ai_settings, screen, stats, sb, ship,
-                                 aliens, bullets, sound,)
+                                 aliens, bullets, sound, power_ups)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, stats, ship) 
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -47,7 +48,7 @@ def check_keyup_events(event, stats, ship):
 
 
 def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, 
-                         bullets, sound):
+                         bullets, sound, power_ups):
     '''Respond to key presses.'''
     if event.key == pygame.K_d:
         ship.moving_right = True
@@ -61,7 +62,8 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens,
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
     elif event.key == pygame.K_q:
         close_game(stats, sound)
-
+    elif event.key == pygame.K_f:
+        ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups)
 
 def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound, 
                            particle_system):
@@ -112,6 +114,7 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
 
 def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
                   play_button, sound, menu_art, power_ups, bg, particle_system,
+                  health_drops,
                   ):
     '''Update the images on screen and flip to a new screen.'''
     # Redraw the screen during each pass through the loop.
@@ -131,6 +134,10 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
         if power_ups:
             for power_up in power_ups.sprites():
                 power_up.blitme()
+        
+        if health_drops:
+            for drop in health_drops.sprites():
+                drop.blitme()
 
     # Draw the play button and the menu if the game is inactive.
     elif not stats.game_active:
@@ -174,13 +181,14 @@ def display_menu_achivement(stats, sb, sound):
         stats.game_over_s = False
 
 
-def check_particles(ai_settings, particle_system, bullets, stats, power_ups):
+def check_particles(ai_settings, particle_system, bullets, stats, power_ups, 
+                    health_drops):
     check_god_bullet_particles(ai_settings, stats, bullets, particle_system)
-    check_power_up_particles(power_ups, particle_system)
+    check_power_up_particles(power_ups, particle_system, health_drops)
     particle_system.update()
 
 
-def check_power_up_particles(power_ups, particle_system):
+def check_power_up_particles(power_ups, particle_system, health_drops):
     if power_ups:
         for powerup in power_ups:
             particle_system.add_particle(
@@ -188,6 +196,15 @@ def check_power_up_particles(power_ups, particle_system):
                 powerup.rect.y + powerup.rect.height,
                 (187, 165, 61), dx=(-0.7, 0.7), dy=(-1, 0.3),
                 life_time=100, size=3
+            )
+
+    if health_drops:
+        for drop in health_drops:
+                particle_system.add_particle(
+                drop.rect.x + drop.rect.width //2,
+                drop.rect.y + drop.rect.height,
+                (255, 36, 0), dx=(-0.7, 0.7), dy=(-1, 0.3),
+                life_time=100, size=2
             )
 
 
@@ -329,7 +346,8 @@ def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, powe
     sleep(0.5)
 
 
-def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound, power_ups, hit):
+def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound, 
+                  power_ups, hit, health_drops):
     '''Update position of bullets and remove old ones and check for alien bullet collisisons.'''
     # Update bullet positions
     bullets.update()
@@ -339,10 +357,12 @@ def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound, 
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
 
-    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound, power_ups, hit)
+    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
+                                   aliens, sound, power_ups, hit, health_drops)
 
 
-def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, aliens, sound, power_ups, hit):
+def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets, 
+                                  aliens, sound, power_ups, hit, health_drops):
     '''Respond to bullet/alien collisions.'''
 
     if stats.hard_mode or stats.insane_mode:
@@ -360,7 +380,7 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
     add_score(ai_settings, stats, sb, collisions, sound)
 
     # randomly drop a powerup if an alien is killed.
-    drop_power_up(ai_settings, screen, stats, power_ups, collisions)
+    drop_power_up(ai_settings, screen, stats, power_ups, collisions, health_drops)
 
     if len(aliens) == 0:
         '''If  entire fleet is destroyed, go to new level'''
@@ -382,16 +402,30 @@ def hard_mode_collisions(stats, g_aliens, collisions, hit):
                         g_aliens.remove(alien)
 
 
-def drop_power_up(ai_settings, screen, stats, power_ups, collisions):
+def drop_power_up(ai_settings, screen, stats, power_ups, collisions, health_drops):
     '''Randomly drop a powerup when an alien is killed.'''
     if collisions:
-        chance = random.randint(1,2)
+        chance = roll_die(stats)
 
         if chance == 1:
             drop_god_bullet(ai_settings, screen, stats, power_ups, collisions)
 
         if chance == 2:
             drop_machine_gun(ai_settings, screen, stats, power_ups, collisions)
+        
+        if chance == 3:
+            drop_health(ai_settings, screen, stats, collisions, health_drops)
+
+
+def drop_health(ai_settings, screen, stats, collisions, health_drops):
+    if stats.ships_left < 3 and not health_drops:
+        for aliens in collisions.values():
+            for alien in aliens:
+                health_drop = Ship(ai_settings, screen)
+
+                # set location under the alien.
+                health_drop.rect.center = alien.rect.center
+                health_drops.add(health_drop)
 
 
 def drop_god_bullet(ai_settings, screen, stats, power_ups, collisions):
@@ -428,7 +462,7 @@ def roll_die(stats):
 
 
 def update_power_ups(sound, sb, screen_rect, stats, ship, power_ups, god_bullet_eq_instance,
-                     machine_gun_eq_instance):
+                     machine_gun_eq_instance, health_drops):
     '''
     if there is a power up is on screen make it move down by callling 
     its update function.
@@ -448,6 +482,27 @@ def update_power_ups(sound, sb, screen_rect, stats, ship, power_ups, god_bullet_
             bestow_power(sound, sb, stats, power_up, collisions, god_bullet_eq_instance, 
                  machine_gun_eq_instance)
 
+    if health_drops:
+        for drop in health_drops:
+            drop.update_health_drop()
+
+            check_missed_health_drop(screen_rect, drop, health_drops)
+
+            collisions = health_drop_collisions(ship, health_drops)
+
+            add_health(stats, sb, collisions)
+
+
+
+def add_health(stats, sb, collisions):
+    if collisions and stats.ships_left < 3:
+        stats.ships_left += 1
+        sb.prep_ships()
+
+
+def check_missed_health_drop(screen_rect, drop, health_drops):
+    if drop.rect.top >= screen_rect.bottom:
+        drop.remove(health_drops)
 
 def check_missed_power_up(screen_rect, power_up, power_ups):
     '''deleting missed power_ups.'''
@@ -481,6 +536,12 @@ def bestow_power(sound, sb, stats, power_up, collisions, god_bullet_eq_instance,
 def ship_power_up_collisions(ship, power_ups):
     '''determine collision between ship and powerup.'''
     collisions = pygame.sprite.spritecollide(ship, power_ups, True)
+    return collisions
+
+
+def health_drop_collisions(ship, health_drops):
+    '''ship health drop collisisons.'''
+    collisions = pygame.sprite.spritecollide(ship, health_drops, True)
     return collisions
 
 

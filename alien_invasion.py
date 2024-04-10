@@ -18,13 +18,15 @@ from ship import Ship
 from hit import Hit
 import pygame
 
-# 2.add health drops.
-# 3.add three bullet powerup.
+# 10. make a round in between to get permenant power_ups
+# 10.2 make permenant power-Ups works
+# 10.3 add three bullet powerup as permenant power-Up
 # 4.morepowerups.
 # 5.add pause and menu.
 # 6.improve main menu
-# 7.add permenant powerups
 # 8.make op powerups rare make weak powerups common
+# 9.fix op-ness : chances ("roll die"), etc ...
+# should change healtH   DROP VISUALS?
 
 class AlienInvasion():
     '''Class for the game alien invasion.'''
@@ -56,6 +58,7 @@ class AlienInvasion():
         self.power_ups = Group()
         self.bullets = Group()
         self.aliens = Group()
+        self.health_drops = Group()
 
         # equality instances.
         alien = Alien(self.ai_settings, self.screen, self.stats)
@@ -75,7 +78,7 @@ class AlienInvasion():
 
         # Main game loop.
         while True:
-
+            print(self.health_drops)
             # GAME NOT ACTIVE.
             gf.check_events(self.ai_settings, self.screen, 
                             self.stats, self.sb, self.play_button, 
@@ -84,8 +87,8 @@ class AlienInvasion():
                             self.particle_system
                             )
             gf.check_particles(self.ai_settings, self.particle_system, 
-                               self.bullets, 
-                               self.stats, self.power_ups)
+                               self.bullets, self.stats, self.power_ups,
+                               self.health_drops)
             gf.check_machine_gun_mode(self.ai_settings, self.screen, 
                                       self.stats, self.ship, self.bullets, 
                                       self.sound, self.particle_system
@@ -99,7 +102,8 @@ class AlienInvasion():
                 self.ship.update()
                 gf.update_bullet(self.ai_settings, self.screen, self.stats, 
                                 self.sb, self.ship, self.aliens, self.bullets,
-                                self.sound, self.power_ups, self.hit
+                                self.sound, self.power_ups, self.hit, 
+                                self.health_drops,
                                 )
                 gf.update_aliens(self.ai_settings, self.stats, self.sb , self.screen, 
                                 self.ship, self.aliens, self.bullets, self.sound, 
@@ -108,7 +112,7 @@ class AlienInvasion():
                 gf.update_power_ups(self.sound , self.sb, self.screen.get_rect(),
                                     self.stats, self.ship, self.power_ups, 
                                     self.god_bullet_eq_instance,
-                                    self.machine_gun_eq_instance
+                                    self.machine_gun_eq_instance, self.health_drops
                                     )
                 gf.end_power(self.ai_settings, self.stats, self.stats.active_powers, 
                             self.god_bullet_eq_instance, self.machine_gun_eq_instance
@@ -116,7 +120,7 @@ class AlienInvasion():
             gf.update_screen(self.ai_settings, self.screen, self.stats, self.sb, 
                             self.ship, self.aliens, self.bullets, self.play_button, 
                             self.sound, self.menu_art, self.power_ups, self.bg,
-                            self.particle_system, 
+                            self.particle_system, self.health_drops
                             )
             
             gf.update_music(self.stats, self.sound)

@@ -37,6 +37,9 @@ class Ship(Sprite):
         # Update the ships location with self.center.
         self.rect.centerx = self.center
 
+    def update_health_drop(self):
+        self.rect.centery += self.ai_settings.cube_speed
+
     def blitme(self):
         '''Dawing the ship at its current location.'''
         self.screen.blit(self.image, self.rect)
