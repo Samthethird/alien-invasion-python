@@ -461,8 +461,8 @@ def roll_die(stats):
     return chance
 
 
-def update_power_ups(sound, sb, screen_rect, stats, ship, power_ups, god_bullet_eq_instance,
-                     machine_gun_eq_instance, health_drops):
+def update_power_ups(sound, sb, screen_rect, stats, ship, power_ups,
+                     health_drops):
     '''
     if there is a power up is on screen make it move down by callling 
     its update function.
@@ -479,8 +479,7 @@ def update_power_ups(sound, sb, screen_rect, stats, ship, power_ups, god_bullet_
             collisions = ship_power_up_collisions(ship, power_ups)
 
             # add power if collisions happened.
-            bestow_power(sound, sb, stats, power_up, collisions, god_bullet_eq_instance, 
-                 machine_gun_eq_instance)
+            bestow_power(sound, sb, stats, power_up, collisions,)
 
     if health_drops:
         for drop in health_drops:
@@ -510,22 +509,20 @@ def check_missed_power_up(screen_rect, power_up, power_ups):
         power_ups.remove(power_up)
 
 
-def bestow_power(sound, sb, stats, power_up, collisions, god_bullet_eq_instance, 
-                 machine_gun_eq_instance):
+def bestow_power(sound, sb, stats, power_up, collisions):
     '''add power if collision happend.'''
     if collisions:
         # activate flags.
-        activate_power_up_flags(stats, power_up, god_bullet_eq_instance, machine_gun_eq_instance)
+        activate_power_up_flags(stats, power_up)
 
         # add power_up to activates powers
-        add_power_to_activated_powers(stats, collisions, god_bullet_eq_instance, 
-                                      machine_gun_eq_instance)
+        add_power_to_activated_powers(stats, collisions)
         
         # give_power.
         power_up.give_power()
         
         # insert hint for the first time.
-        if power_up == machine_gun_eq_instance and not stats.hint_activated:
+        if isinstance(power_up, MachineGunPowerUp) and not stats.hint_activated:
             sb.prep_hint()
             stats.hint_activated = True
 
@@ -545,33 +542,33 @@ def health_drop_collisions(ship, health_drops):
     return collisions
 
 
-def activate_power_up_flags(stats, power_up, god_bullet_eq_instance, machine_gun_eq_instance):
+def activate_power_up_flags(stats, power_up,):
     # inform that God_bullet mode is active.
-    if power_up == god_bullet_eq_instance:
+    if isinstance(power_up, GodBulletPowerUp):
         stats.god_bullet_active = True
     # inform that machine gun mode is active.
-    elif power_up == machine_gun_eq_instance:
+    elif isinstance(power_up, MachineGunPowerUp):
         stats.machine_gun_active = True
 
 
-def add_power_to_activated_powers(stats, collisions, god_bullet_eq_instance, machine_gun_eq_instance):
+def add_power_to_activated_powers(stats, collisions):
     '''if power up is already active reset timer else add it to active powers.'''
     for collision in collisions:
         
         # god_bullet.
-        if collision == god_bullet_eq_instance and stats.god_bullet_active:
+        if isinstance(collision, GodBulletPowerUp) and stats.god_bullet_active:
             stats.reset_god_bullet_timer = True
         else:
             stats.active_powers.add(collision)
 
         # machine_gun.
-        if collision == machine_gun_eq_instance and stats.machine_gun_active:
+        if isinstance(collision, MachineGunPowerUp) and stats.machine_gun_active:
             stats.reset_machine_gun_timer = True
         else:
             stats.active_powers.add(collision)
 
 
-def end_power(ai_settings, stats, active_powers, god_bullet_eq_instance, machine_gun_eq_instance):
+def end_power(ai_settings, stats, active_powers):
     '''
     End the power of each power up recpectively 
     once their time limit has been reached.
@@ -582,31 +579,30 @@ def end_power(ai_settings, stats, active_powers, god_bullet_eq_instance, machine
 
         for power in active_powers:
             # if a already have a power_up reset its timer.
-            reset_timers(stats, power, god_bullet_eq_instance, machine_gun_eq_instance)
+            reset_timers(stats, power)
             if now - power.start_time >= ai_settings.power_up_timer:
                 power.end_power()
-                deactivate_power_up_flags(stats, power, god_bullet_eq_instance, machine_gun_eq_instance)
+                deactivate_power_up_flags(stats, power)
                 active_powers.remove(power)
 
 
-def deactivate_power_up_flags(stats, power, god_bullet_eq_instance, 
-                              machine_gun_eq_instance):
+def deactivate_power_up_flags(stats, power):
     # god_bullet.
-    if power == god_bullet_eq_instance:
+    if isinstance(power, GodBulletPowerUp):
         stats.god_bullet_active = False
     # machine gun.
-    elif power == machine_gun_eq_instance:
+    elif isinstance(power,MachineGunPowerUp):
         stats.machine_gun_active = False
 
 
-def reset_timers(stats, power, god_bullet_eq_instance, machine_gun_eq_instance):
+def reset_timers(stats, power):
     '''if already have a power up reset timer.'''
     # god_bullet.
-    if power == god_bullet_eq_instance and stats.reset_god_bullet_timer:
+    if isinstance(power, GodBulletPowerUp) and stats.reset_god_bullet_timer:
         power.get_start_time()
         stats.reset_god_bullet_timer = False
     # machine_gun.
-    elif power == machine_gun_eq_instance and stats.reset_machine_gun_timer:
+    elif isinstance(power,MachineGunPowerUp) and stats.reset_machine_gun_timer:
         power.get_start_time()
         stats.reset_machine_gun_timer = False
 

@@ -21,12 +21,3 @@ class MachineGunPowerUp(PowerUp):
         '''end power'''
         self.stats.machine_gun_active = False
         self.ai_settings.bullets_allowed = 3
-        
-    def __eq__(self, other):
-        '''return image location for equality'''
-        if isinstance(other, MachineGunPowerUp):
-            return self.image_location == other.image_location
-        return False
-    
-    def __hash__(self):
-        return hash(self.image_location)

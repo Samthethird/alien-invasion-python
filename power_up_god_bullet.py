@@ -23,11 +23,3 @@ class GodBulletPowerUp(PowerUp):
     def end_power(self):
         '''end power'''
         self.ai_settings.reset_god_bullet_settings()
-
-    def __eq__(self, other):
-        if isinstance(other, GodBulletPowerUp):
-            return self.image_location == other.image_location
-        return False
-    
-    def __hash__(self):
-        return hash(self.image_location)

@@ -3,6 +3,7 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
 from power_up_machine_gun import MachineGunPowerUp
 from power_up_god_bullet import GodBulletPowerUp
+from particles import ParticleSystem
 from background import BackGround
 from scoreboard import Scoreboard
 from game_stats import GameStats
@@ -13,7 +14,6 @@ import game_functions as gf
 from button import Button
 from sounds import Sound
 from alien import Alien
-from particles import *
 from ship import Ship
 from hit import Hit
 import pygame
@@ -62,12 +62,7 @@ class AlienInvasion():
 
         # equality instances.
         alien = Alien(self.ai_settings, self.screen, self.stats)
-        self.god_bullet_eq_instance = GodBulletPowerUp(
-            self.ai_settings, self.screen, self.stats, alien
-            )
-        self.machine_gun_eq_instance = MachineGunPowerUp(
-            self.ai_settings, self.screen, self.stats, alien
-            )
+
 
     def run_game(self):
         '''run all game functions'''
@@ -78,7 +73,6 @@ class AlienInvasion():
 
         # Main game loop.
         while True:
-            print(self.health_drops)
             # GAME NOT ACTIVE.
             gf.check_events(self.ai_settings, self.screen, 
                             self.stats, self.sb, self.play_button, 
@@ -110,12 +104,10 @@ class AlienInvasion():
                                 self.power_ups
                                 )
                 gf.update_power_ups(self.sound , self.sb, self.screen.get_rect(),
-                                    self.stats, self.ship, self.power_ups, 
-                                    self.god_bullet_eq_instance,
-                                    self.machine_gun_eq_instance, self.health_drops
+                                    self.stats, self.ship, self.power_ups,
+                                    self.health_drops
                                     )
                 gf.end_power(self.ai_settings, self.stats, self.stats.active_powers, 
-                            self.god_bullet_eq_instance, self.machine_gun_eq_instance
                             )
             gf.update_screen(self.ai_settings, self.screen, self.stats, self.sb, 
                             self.ship, self.aliens, self.bullets, self.play_button, 
@@ -127,6 +119,5 @@ class AlienInvasion():
 
             
 if __name__ == "__main__":
-
     ai = AlienInvasion()
     ai.run_game()
