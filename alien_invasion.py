@@ -27,6 +27,8 @@ import pygame
 # 8.make op powerups rare make weak powerups common
 # 9.fix op-ness : chances ("roll die"), etc ...
 # should change healtH   DROP VISUALS?
+# figure out sine wave
+
 
 class AlienInvasion():
     '''Class for the game alien invasion.'''
@@ -60,17 +62,8 @@ class AlienInvasion():
         self.aliens = Group()
         self.health_drops = Group()
 
-        # equality instances.
-        alien = Alien(self.ai_settings, self.screen, self.stats)
-
-
     def run_game(self):
         '''run all game functions'''
-        # Make initial alien fleet. 
-        gf.create_fleet(self.ai_settings, self.screen,
-                         self.stats, self.ship, self.aliens
-                         )
-
         # Main game loop.
         while True:
             # GAME NOT ACTIVE.
@@ -78,7 +71,6 @@ class AlienInvasion():
                             self.stats, self.sb, self.play_button, 
                             self.ship, self.aliens, 
                             self.bullets, self.sound, self.power_ups,
-                            self.particle_system
                             )
             gf.check_particles(self.ai_settings, self.particle_system, 
                                self.bullets, self.stats, self.power_ups,
@@ -109,7 +101,7 @@ class AlienInvasion():
                                     )
                 gf.end_power(self.ai_settings, self.stats, self.stats.active_powers, 
                             )
-            gf.update_screen(self.ai_settings, self.screen, self.stats, self.sb, 
+            gf.update_screen(self.screen, self.stats, self.sb, 
                             self.ship, self.aliens, self.bullets, self.play_button, 
                             self.sound, self.menu_art, self.power_ups, self.bg,
                             self.particle_system, self.health_drops

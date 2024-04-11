@@ -29,6 +29,7 @@ class GameStats():
         self.game_over_s= False
         self.high_score_beat = False
         self.high_2_beat = False
+        self.power_up_level = False
         
         # game counter
         self.game_counter = 0

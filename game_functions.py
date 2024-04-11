@@ -12,7 +12,7 @@ import sys
 
 
 def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
-                 bullets, sound, power_ups, particle_system):
+                 bullets, sound, power_ups):
     '''Respond to keyboard and mouse activity.'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -63,7 +63,7 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens,
     elif event.key == pygame.K_q:
         close_game(stats, sound)
     elif event.key == pygame.K_f:
-        ship_hit(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups)
+        aliens.empty()
 
 def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound, 
                            particle_system):
@@ -112,7 +112,7 @@ def start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound):
         ship.center_ship()
 
 
-def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets,
+def update_screen(screen, stats, sb, ship, aliens, bullets,
                   play_button, sound, menu_art, power_ups, bg, particle_system,
                   health_drops,
                   ):
@@ -381,10 +381,54 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
 
     # randomly drop a powerup if an alien is killed.
     drop_power_up(ai_settings, screen, stats, power_ups, collisions, health_drops)
+    
+    next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound,
+               power_ups)
 
-    if len(aliens) == 0:
-        '''If  entire fleet is destroyed, go to new level'''
-        next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound)
+
+def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound,
+               power_ups):
+        if len(aliens) == 0 and stats.level == 5:
+            power_up_level(ai_settings, screen, stats, sb, ship, sound, bullets, 
+                   power_ups, aliens)
+
+        elif len(aliens) == 0:
+            '''proceed to the next level.'''
+            # initate next level sound effect.
+            sound.next_level()
+            # Increase and show level.
+            stats.level += 1
+            sb.prep_level()
+
+            # Empty bullets.
+            bullets.empty()
+            ai_settings.increase_alien_worth()
+            
+            # check level and create fleet
+            check_level(ai_settings, stats)
+            create_fleet(ai_settings, screen, stats, ship, aliens)
+
+
+def power_up_level(ai_settings, screen, stats, sb, ship, sound, bullets, 
+                   power_ups, aliens):
+    '''a level, specific for permenant level ups.'''
+    # turn off loop
+    if not stats.power_up_level:
+        sound.next_level()
+        bullets.empty()
+        power_ups.empty()
+        # Spawn permenant power_up,
+
+    if not power_ups:
+        if not stats.power_up_level:
+            start_time = pygame.time.get_ticks()
+        
+        now = pygame.time.get_ticks()
+        if now - start_time >= 1000:
+            next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound,
+                power_ups)
+            
+    stats.power_up_level = True
 
 
 def hard_mode_collisions(stats, g_aliens, collisions, hit):
@@ -605,24 +649,6 @@ def reset_timers(stats, power):
     elif isinstance(power,MachineGunPowerUp) and stats.reset_machine_gun_timer:
         power.get_start_time()
         stats.reset_machine_gun_timer = False
-
-
-def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound):
-        '''proceed to the next level.'''
-        # initate next level sound effect.
-        sound.next_level()
-        # Increase and show level.
-        stats.level += 1
-        sb.prep_level()
-
-        # Empty bullets.
-        bullets.empty()
-        if not stats.hard_mode:
-            ai_settings.increase_alien_worth()
-        
-        # check level and create fleet
-        check_level(ai_settings, stats)
-        create_fleet(ai_settings, screen, stats, ship, aliens)
 
 
 def check_level(ai_settings, stats):
