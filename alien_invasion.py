@@ -99,7 +99,6 @@ class AlienInvasion():
                                     )
                 gf.end_power(self.ai_settings, self.stats, self.stats.active_powers, 
                             )
-                print(self.power_ups, self.stats.active_powers, self.stats.permanent_powers)
             gf.update_screen(self.screen, self.stats, self.sb, 
                             self.ship, self.aliens, self.bullets, self.play_button, 
                             self.sound, self.menu_art, self.power_ups, self.bg,

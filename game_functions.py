@@ -236,7 +236,7 @@ def fire_bullet(ai_settings, screen, stats, ship, bullets, sound,
         if len(bullets) < ai_settings.bullets_allowed:
             for i in range(1, 4):
                 new_bullet = Bullet(ai_settings, screen, ship)
-                new_bullet.index = i            
+                new_bullet.index = i
                 bullets.add(new_bullet)
             
     else:    
@@ -359,7 +359,7 @@ def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound,
     '''Update position of bullets and remove old ones and check for alien bullet collisisons.'''
     if stats.mantis_god_active:
         for bullet in bullets:
-            bullet.update_mantis_mode
+            bullet.update_mantis_mode()
     else:
         # Update bullet positions
         bullets.update()

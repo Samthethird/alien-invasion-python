@@ -1,3 +1,4 @@
+import math
 import pygame
 from pygame.sprite import Sprite
 
@@ -18,11 +19,11 @@ class Bullet(Sprite):
 
         # Store the bullets position as decimal value.
         self.y = float(self.rect.y)
+        self.x = float(self.rect.x)
+        self.index = int
 
         self.color = ai_settings.bullet_color
         self.speed_factor = ai_settings.bullet_speed_factor
-
-        self.index = int
 
     def update(self):
         '''Moving the bullet up the screen.'''
@@ -32,18 +33,22 @@ class Bullet(Sprite):
         self.rect.y = self.y
 
     def update_mantis_mode(self):
-        self.y -= self.speed_factor
-        
         if self.index == 1:
             # if first bullet, go left
-            self.x -= self.speed_factor
+            self.y -= self.speed_factor
+            self.x -= self.speed_factor * 0.2
+        
+        elif self.index == 2:
+            self.y -= self.speed_factor
             
         elif self.index == 3:
             # if third bullet, go right
-            self.x += self.speed_factor
+            self.y -= self.speed_factor 
+            self.x += self.speed_factor * 0.2
 
         self.rect.y = self.y
-
+        self.rect.x = self.x
+        
     def draw_bullet(self):
         '''Draw the bullet on the screen.'''
         pygame.draw.rect(self.screen,
