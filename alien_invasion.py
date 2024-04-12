@@ -13,7 +13,6 @@ from menu_art import MenuArt
 import game_functions as gf
 from button import Button
 from sounds import Sound
-from alien import Alien
 from ship import Ship
 from hit import Hit
 import pygame
@@ -36,7 +35,6 @@ class AlienInvasion():
     def __init__(self):
         '''Initialize pygame, Settings and self.screen object.'''
         pygame.init()
-        
         self.stats = GameStats()
         self.ai_settings = Settings(self.stats)
         # self.Screen object.
@@ -101,6 +99,7 @@ class AlienInvasion():
                                     )
                 gf.end_power(self.ai_settings, self.stats, self.stats.active_powers, 
                             )
+                print(self.power_ups, self.stats.active_powers, self.stats.permanent_powers)
             gf.update_screen(self.screen, self.stats, self.sb, 
                             self.ship, self.aliens, self.bullets, self.play_button, 
                             self.sound, self.menu_art, self.power_ups, self.bg,

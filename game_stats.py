@@ -30,6 +30,8 @@ class GameStats():
         self.high_score_beat = False
         self.high_2_beat = False
         self.power_up_level = False
+        self.one_timeM = False
+        self.power_up_level_passed = False
         
         # game counter
         self.game_counter = 0
@@ -39,13 +41,15 @@ class GameStats():
         self.insane_mode = False
 
         self.power_ups()
-
+        self.permanent_power_ups()
+        
     def power_ups(self):
         '''method dedicated to initializing power_up stats.'''
         # Group for current active powers
         self.active_powers = pygame.sprite.Group()
+        self.permanent_powers = pygame.sprite.Group()
 
-        # MACHINE GUN.
+        # MACHINE GUN:
         self.reset_machine_gun_timer = False
         self.machine_gun_active = False
         self.shooting = False
@@ -54,6 +58,11 @@ class GameStats():
         # GOD BULLET:
         self.reset_god_bullet_timer = False
         self.god_bullet_active = False
+
+    def permanent_power_ups(self):
+        # MANTIS GOD:
+        self.mantis_god_active = False
+        self.start_timeM = 0
 
     def reset_music(self):
         '''method for keeping track of music activity'''

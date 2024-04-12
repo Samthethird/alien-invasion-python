@@ -4,20 +4,21 @@ from pygame.sprite import Sprite
 class PowerUp(Sprite):
     """A parent class for all powerups"""
 
-    def __init__(self, ai_settings, screen, stats, alien):
+    def __init__(self, ai_settings, screen, stats, alien=None):
         """initialize attributes."""
         super().__init__()
         self.ai_settings = ai_settings
-        self.screen = screen    
-        self.alien = alien 
+        self.screen = screen   
+        self.screen_rect = screen.get_rect() 
         self.start_time = int()
         self.stats = stats
-        
+        self.permanent = False        
         # power activity state
         self.power_active = False
 
-    def update_location(self):
+    def update_location(self, alien):
         # Load power-up image and position it.
+        self.alien = alien
         self.image = pygame.image.load(self.image_location)
         self.rect = self.image.get_rect()
         self.rect.top = self.alien.rect.bottom

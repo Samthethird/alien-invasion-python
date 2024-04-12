@@ -1,5 +1,6 @@
-from power_up_god_bullet import GodBulletPowerUp
 from power_up_machine_gun import MachineGunPowerUp
+from power_up_god_bullet import GodBulletPowerUp
+from power_up_mantis_god import MantisGodPowerUp
 from bullet import Bullet
 from pathlib import Path
 from alien import Alien
@@ -231,19 +232,27 @@ def check_god_bullet_particles(ai_settings, stats, bullets, particle_system):
 def fire_bullet(ai_settings, screen, stats, ship, bullets, sound,
                 ):
     '''Make a bullet if limit not reached.'''
-    # Create a bullet and add it to the bullets group.
-    if len(bullets) < ai_settings.bullets_allowed:
-        new_bullet = Bullet(ai_settings, screen, ship)
-        bullets.add(new_bullet)
+    if stats.mantis_god_active:
+        if len(bullets) < ai_settings.bullets_allowed:
+            for i in range(1, 4):
+                new_bullet = Bullet(ai_settings, screen, ship)
+                new_bullet.index = i            
+                bullets.add(new_bullet)
+            
+    else:    
+        # Create a bullet and add it to the bullets group.
+        if len(bullets) < ai_settings.bullets_allowed:
+            new_bullet = Bullet(ai_settings, screen, ship)
+            bullets.add(new_bullet)
 
-        #initiate sound effect and particles.
-        if stats.game_active:
-            if stats.god_bullet_active:
-                sound.fire_god_bullet()
+    #initiate sound effect and particles.
+    if stats.game_active:
+        if stats.god_bullet_active:
+            sound.fire_god_bullet()
+        else:
+            sound.fire_bullet()
 
-            else:
-                sound.fire_bullet()
-        stats.start_time = pygame.time.get_ticks()
+    stats.start_time = pygame.time.get_ticks()
 
 
 def update_aliens(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, power_ups):
@@ -335,7 +344,6 @@ def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, powe
     # powers
     ai_settings.reset_god_bullet_settings()
     power_ups.empty()
-    stats.power_ups()
 
     # Create new fleet and and center ship.
     check_level(ai_settings, stats)
@@ -349,8 +357,12 @@ def next_life(ai_settings, stats, sb, screen, ship, aliens, bullets, sound, powe
 def update_bullet(ai_settings, screen, stats, sb, ship, aliens, bullets, sound, 
                   power_ups, hit, health_drops):
     '''Update position of bullets and remove old ones and check for alien bullet collisisons.'''
-    # Update bullet positions
-    bullets.update()
+    if stats.mantis_god_active:
+        for bullet in bullets:
+            bullet.update_mantis_mode
+    else:
+        # Update bullet positions
+        bullets.update()
     
     # Deleting unececary bullets.
     for bullet in bullets.copy():
@@ -388,7 +400,7 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
 
 def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound,
                power_ups):
-        if len(aliens) == 0 and stats.level == 5:
+        if len(aliens) == 0 and stats.level == 5 and not stats.power_up_level_passed:
             power_up_level(ai_settings, screen, stats, sb, ship, sound, bullets, 
                    power_ups, aliens)
 
@@ -411,24 +423,37 @@ def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound,
 
 def power_up_level(ai_settings, screen, stats, sb, ship, sound, bullets, 
                    power_ups, aliens):
-    '''a level, specific for permenant level ups.'''
-    # turn off loop
+    '''a level, specific for getting a permenant level ups.'''
+    # activate events, only once.
     if not stats.power_up_level:
+        power_up_level_events(sound, bullets, power_ups, ai_settings, screen, stats)
+
+    # get the time when player got the falling power_up, only once.
+    if stats.mantis_god_active and not stats.one_timeM:
+        stats.start_timeM = pygame.time.get_ticks()
+        stats.one_timeM = True
+
+    # if playr got power up, start timer and wait one second before going to next level
+    if stats.start_timeM > 0:
+        now = pygame.time.get_ticks()
+        if now - stats.start_timeM >= 1000:
+            stats.power_up_level_passed = True
+            next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound,
+                power_ups)
+    
+    # activate power_Up_level so the things that are meant to happen once dont 
+    # happen again
+    stats.power_up_level = True
+    
+
+def power_up_level_events(sound, bullets, power_ups, ai_settings, screen, stats):
         sound.next_level()
         bullets.empty()
         power_ups.empty()
-        # Spawn permenant power_up,
-
-    if not power_ups:
-        if not stats.power_up_level:
-            start_time = pygame.time.get_ticks()
-        
-        now = pygame.time.get_ticks()
-        if now - start_time >= 1000:
-            next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound,
-                power_ups)
-            
-    stats.power_up_level = True
+        # generate power_Up
+        mantis_god_power_up = MantisGodPowerUp(ai_settings, screen, stats)
+        # add to list of permenant power_ups:
+        power_ups.add(mantis_god_power_up)
 
 
 def hard_mode_collisions(stats, g_aliens, collisions, hit):
@@ -523,7 +548,7 @@ def update_power_ups(sound, sb, screen_rect, stats, ship, power_ups,
             collisions = ship_power_up_collisions(ship, power_ups)
 
             # add power if collisions happened.
-            bestow_power(sound, sb, stats, power_up, collisions,)
+            bestow_power(sound, sb, stats, power_up, collisions, power_ups)
 
     if health_drops:
         for drop in health_drops:
@@ -553,14 +578,11 @@ def check_missed_power_up(screen_rect, power_up, power_ups):
         power_ups.remove(power_up)
 
 
-def bestow_power(sound, sb, stats, power_up, collisions):
+def bestow_power(sound, sb, stats, power_up, collisions, power_ups):
     '''add power if collision happend.'''
     if collisions:
-        # activate flags.
-        activate_power_up_flags(stats, power_up)
-
         # add power_up to activates powers
-        add_power_to_activated_powers(stats, collisions)
+        add_power_to_activated_powers(stats, collisions, power_ups)
         
         # give_power.
         power_up.give_power()
@@ -584,32 +606,30 @@ def health_drop_collisions(ship, health_drops):
     '''ship health drop collisisons.'''
     collisions = pygame.sprite.spritecollide(ship, health_drops, True)
     return collisions
-
-
-def activate_power_up_flags(stats, power_up,):
-    # inform that God_bullet mode is active.
-    if isinstance(power_up, GodBulletPowerUp):
-        stats.god_bullet_active = True
-    # inform that machine gun mode is active.
-    elif isinstance(power_up, MachineGunPowerUp):
-        stats.machine_gun_active = True
-
-
-def add_power_to_activated_powers(stats, collisions):
+    
+def add_power_to_activated_powers(stats, collisions, power_ups):
     '''if power up is already active reset timer else add it to active powers.'''
-    for collision in collisions:
-        
-        # god_bullet.
-        if isinstance(collision, GodBulletPowerUp) and stats.god_bullet_active:
-            stats.reset_god_bullet_timer = True
-        else:
-            stats.active_powers.add(collision)
+    for collision in collisions:    
+        if not collision.permanent:
+            '''not permenant'''
+            # god_bullet.
+            if isinstance(collision, GodBulletPowerUp) and stats.god_bullet_active:
+                stats.reset_god_bullet_timer = True
+            else:
+                stats.active_powers.add(collision)
 
-        # machine_gun.
-        if isinstance(collision, MachineGunPowerUp) and stats.machine_gun_active:
-            stats.reset_machine_gun_timer = True
-        else:
-            stats.active_powers.add(collision)
+            # machine_gun.
+            if isinstance(collision, MachineGunPowerUp) and stats.machine_gun_active:
+                stats.reset_machine_gun_timer = True
+            else:
+                stats.active_powers.add(collision)
+                
+        elif collision.permanent:
+            '''permanent'''
+            # mantis God.
+            if isinstance(collision, MantisGodPowerUp):
+                stats.permanent_powers.add(collision)
+                power_ups.remove(collision)
 
 
 def end_power(ai_settings, stats, active_powers):
@@ -626,17 +646,7 @@ def end_power(ai_settings, stats, active_powers):
             reset_timers(stats, power)
             if now - power.start_time >= ai_settings.power_up_timer:
                 power.end_power()
-                deactivate_power_up_flags(stats, power)
                 active_powers.remove(power)
-
-
-def deactivate_power_up_flags(stats, power):
-    # god_bullet.
-    if isinstance(power, GodBulletPowerUp):
-        stats.god_bullet_active = False
-    # machine gun.
-    elif isinstance(power,MachineGunPowerUp):
-        stats.machine_gun_active = False
 
 
 def reset_timers(stats, power):

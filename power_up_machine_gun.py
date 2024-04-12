@@ -9,7 +9,7 @@ class MachineGunPowerUp(PowerUp):
         super().__init__(ai_settings, screen, stats, alien)
         self.image_location = 'images/machine_gun.png'
 
-        self.update_location()
+        self.update_location(alien)
 
     def give_power(self):
         '''give the powers of machine gun to the player.'''

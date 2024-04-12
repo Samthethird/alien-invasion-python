@@ -22,11 +22,26 @@ class Bullet(Sprite):
         self.color = ai_settings.bullet_color
         self.speed_factor = ai_settings.bullet_speed_factor
 
+        self.index = int
+
     def update(self):
         '''Moving the bullet up the screen.'''
         # Update the decimal position of the bullet.
         self.y -= self.speed_factor
         # Update the rect position
+        self.rect.y = self.y
+
+    def update_mantis_mode(self):
+        self.y -= self.speed_factor
+        
+        if self.index == 1:
+            # if first bullet, go left
+            self.x -= self.speed_factor
+            
+        elif self.index == 3:
+            # if third bullet, go right
+            self.x += self.speed_factor
+
         self.rect.y = self.y
 
     def draw_bullet(self):

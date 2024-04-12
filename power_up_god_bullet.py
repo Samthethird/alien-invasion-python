@@ -10,7 +10,7 @@ class GodBulletPowerUp(PowerUp):
         self.color = ai_settings.god_bullet_color
         self.image_location = "images/god_bullet.png"
 
-        self.update_location()
+        self.update_location(alien)
         
     def give_power(self):
         '''change the game settings, to apply power.'''
@@ -22,4 +22,5 @@ class GodBulletPowerUp(PowerUp):
 
     def end_power(self):
         '''end power'''
+        self.stats.god_bullet_active = False
         self.ai_settings.reset_god_bullet_settings()
