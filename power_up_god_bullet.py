@@ -14,6 +14,7 @@ class GodBulletPowerUp(PowerUp):
         
     def give_power(self):
         '''change the game settings, to apply power.'''
+        self.stats.god_bullet_active = True
         self.ai_settings.bullet_width = 30
         self.ai_settings.bullet_height = 150
         self.ai_settings.bullet_color = self.color

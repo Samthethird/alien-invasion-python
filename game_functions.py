@@ -233,6 +233,7 @@ def check_god_bullet_particles(ai_settings, stats, bullets, particle_system):
 def fire_bullet(ai_settings, screen, stats, ship, bullets, sound,
                 ):
     '''Make a bullet if limit not reached.'''
+    soundb = False
     # mantis mode
     if stats.mantis_active:
         if len(bullets) < ai_settings.bullets_allowed:
@@ -241,7 +242,8 @@ def fire_bullet(ai_settings, screen, stats, ship, bullets, sound,
                 new_bullet.index = i
                 new_bullet.set_location()
                 bullets.add(new_bullet)
-
+                soundb = True
+                
     # mantis Gode mode
     elif stats.mantis_god_active:
         if len(bullets) < ai_settings.bullets_allowed:
@@ -249,15 +251,16 @@ def fire_bullet(ai_settings, screen, stats, ship, bullets, sound,
                 new_bullet = Bullet(ai_settings, screen, ship, stats)
                 new_bullet.index = i
                 bullets.add(new_bullet)
-            
+                soundb = True
     else:    
         # Create a bullet and add it to the bullets group.
         if len(bullets) < ai_settings.bullets_allowed:
             new_bullet = Bullet(ai_settings, screen, ship, stats)
             bullets.add(new_bullet)
+            soundb = True
 
     #initiate sound effect and particles.
-    if stats.game_active:
+    if stats.game_active and soundb:
         if stats.god_bullet_active:
             sound.fire_god_bullet()
         else:
@@ -435,8 +438,9 @@ def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound,
             check_level(ai_settings, stats)
             create_fleet(ai_settings, screen, stats, ship, aliens)
 
-        if stats.level == 13:
+        if stats.level == 12 and stats.power_up_level:
             stats.reset_power_up_level()
+
 
 def power_up_level(ai_settings, screen, stats, sb, ship, sound, bullets, 
                    power_ups, aliens):
@@ -551,7 +555,7 @@ def roll_die(stats):
         chance = random.randint(1, 100)
     elif stats.level <= 24:
         chance = random.randint(1, 50)
-    elif stats.level > 25:
+    elif stats.level >= 25:
         chance= random.randint(1, 30)
     return chance
 

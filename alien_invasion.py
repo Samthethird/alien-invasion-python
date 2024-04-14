@@ -22,7 +22,7 @@ import pygame
 # 6.improve main menu
 # should change healtH DROP VISUALS?
 # figure out sine wave
-
+# particles god_bullet bug
  
 class AlienInvasion():
     '''Class for the game alien invasion.'''
@@ -72,7 +72,7 @@ class AlienInvasion():
                                       self.stats, self.ship, self.bullets, 
                                       self.sound, self.particle_system
                                       )
-            
+
             # GAME ACTIVE.
             if self.stats.game_active:
                 # lock on 180 F_P_S
