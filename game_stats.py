@@ -29,10 +29,7 @@ class GameStats():
         self.game_over_s= False
         self.high_score_beat = False
         self.high_2_beat = False
-        self.power_up_level = False
-        self.one_timeM = False
-        self.power_up_level_passed = False
-        
+
         # game counter
         self.game_counter = 0
         
@@ -42,6 +39,13 @@ class GameStats():
 
         self.power_ups()
         self.permanent_power_ups()
+        self.reset_power_up_level()
+
+    def reset_power_up_level(self):
+        self.power_up_level = False
+        self.one_timeM = False
+        self.power_up_level_passed = False
+        self.start_timeM = 0
         
     def power_ups(self):
         '''method dedicated to initializing power_up stats.'''
@@ -62,7 +66,9 @@ class GameStats():
     def permanent_power_ups(self):
         # MANTIS GOD:
         self.mantis_god_active = False
-        self.start_timeM = 0
+
+        # MANTIS:
+        self.mantis_active = False
 
     def reset_music(self):
         '''method for keeping track of music activity'''

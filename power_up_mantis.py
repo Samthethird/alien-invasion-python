@@ -1,7 +1,7 @@
 import pygame
 from power_up_base import PowerUp
 
-class MantisGodPowerUp(PowerUp):
+class MantisPowerUp(PowerUp):
     '''a permenant power_up.'''
     def __init__(self, ai_settings, screen, stats):
         super().__init__(ai_settings, screen, stats)
@@ -17,5 +17,9 @@ class MantisGodPowerUp(PowerUp):
         self.y = float(self.rect.y)
 
     def give_power(self):
-        self.ai_settings.bullets_allowed *= 2
+        self.ai_settings.bullets_allowed = 6
         self.stats.mantis_active = True
+
+    def end_power(self):
+        self.ai_settings.bullets_allowed == 3
+        self.stats.mantis_active = False

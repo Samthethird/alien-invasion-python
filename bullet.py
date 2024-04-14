@@ -6,24 +6,35 @@ from pygame.sprite import Sprite
 class Bullet(Sprite):
     '''A class to manage the bullets fired from the ship.'''
     
-    def __init__(self, ai_settings, screen, ship):
+    def __init__(self, ai_settings, screen, ship, stats):
         '''Create a bullet on the ships current location.'''
         super().__init__()
         self.screen = screen
+        self.ai_settings = ai_settings
+        self.ship = ship
+        self.stats = stats
 
-        # Create a bullet and correct position.
-        self.rect = pygame.Rect(0, 0, ai_settings.bullet_width,
-                                ai_settings.bullet_height)
-        self.rect.centerx = ship.rect.centerx
-        self.rect.top = ship.rect.top
+        self.rect = pygame.Rect(0, 0, self.ai_settings.bullet_width,
+                        self.ai_settings.bullet_height)
+        self.rect.midtop = self.ship.rect.midtop
 
         # Store the bullets position as decimal value.
         self.y = float(self.rect.y)
         self.x = float(self.rect.x)
+
         self.index = int
 
         self.color = ai_settings.bullet_color
         self.speed_factor = ai_settings.bullet_speed_factor
+
+    def set_location(self):
+        # Create a bullet and correct position.
+        (x, y) = self.ship.rect.midtop
+        if self.stats.mantis_active:
+            if self.index == 1:
+                self.rect.midtop = (x-10, y)
+            if self.index == 2:
+                self.rect.midtop = (x+10, y)
 
     def update(self):
         '''Moving the bullet up the screen.'''
@@ -32,7 +43,7 @@ class Bullet(Sprite):
         # Update the rect position
         self.rect.y = self.y
 
-    def update_mantis_mode(self):
+    def update_mantis_god_mode(self):
         if self.index == 1:
             # if first bullet, go left
             self.y -= self.speed_factor
@@ -48,7 +59,7 @@ class Bullet(Sprite):
 
         self.rect.y = self.y
         self.rect.x = self.x
-        
+
     def draw_bullet(self):
         '''Draw the bullet on the screen.'''
         pygame.draw.rect(self.screen,
