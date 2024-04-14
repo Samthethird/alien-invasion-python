@@ -52,12 +52,11 @@ class AlienInvasion():
         '''run all game functions'''
         # Main game loop.
         while True:
-            print(self.power_ups)
             # GAME NOT ACTIVE.
             gf.check_events(self.ai_settings, self.screen, 
                             self.stats, self.sb, self.play_button, 
                             self.ship, self.aliens, 
-                            self.bullets, self.sound, self.power_ups,
+                            self.bullets, self.sound
                             )
             gf.check_particles(self.ai_settings, self.particle_system, 
                                self.bullets, self.stats, self.power_ups,
@@ -71,7 +70,6 @@ class AlienInvasion():
             if self.stats.game_active:
                 # lock on 180 F_P_S
                 self.clock.tick(180)
-                print(self.stats.active_powers)
                 self.ship.update()
                 gf.update_bullet(self.ai_settings, self.screen, self.stats, 
                                 self.sb, self.ship, self.aliens, self.bullets,

@@ -14,14 +14,14 @@ import sys
 
 
 def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
-                 bullets, sound, power_ups):
+                 bullets, sound):
     '''Respond to keyboard and mouse activity.'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             close_game(stats, sound)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, ai_settings, screen, stats, sb, ship,
-                                 aliens, bullets, sound, power_ups)
+                                 aliens, bullets, sound)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, stats, ship) 
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -50,7 +50,7 @@ def check_keyup_events(event, stats, ship):
 
 
 def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, 
-                         bullets, sound, power_ups):
+                         bullets, sound):
     '''Respond to key presses.'''
     if event.key == pygame.K_d:
         ship.moving_right = True
@@ -62,10 +62,7 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens,
         stats.shooting = True
     elif event.key == pygame.K_p:
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
-    elif event.key == pygame.K_q:
-        close_game(stats, sound)
-    elif event.key == pygame.K_f:
-        aliens.empty()
+
 
 def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound, 
                            ):
@@ -454,13 +451,17 @@ def power_up_level(ai_settings, screen, stats, sb, ship, sound, bullets,
         power_up_level_events(sound, bullets, power_ups, ai_settings, screen, stats)
 
     # get the time when player got the falling power_up, only once.
-    # for mantis god mode
-    if stats.mantis_god_active and not stats.one_timeM:
+    # for mantis mode
+    if stats.mantis_active and not stats.one_timeM and stats.level == 5:
         stats.start_timeM = pygame.time.get_ticks()
         stats.one_timeM = True
 
-    # for mantis mode
-    if stats.mantis_active and not stats.one_timeM:
+    # for mantis god mode
+    elif stats.mantis_god_active and not stats.one_timeM:
+        stats.start_timeM = pygame.time.get_ticks()
+        stats.one_timeM = True
+
+    elif not stats.permanent_powers and not stats.one_timeM and not power_ups:
         stats.start_timeM = pygame.time.get_ticks()
         stats.one_timeM = True
 
@@ -508,7 +509,7 @@ def hard_mode_collisions(stats, g_aliens, collisions, hit):
 def drop_power_up(ai_settings, screen, stats, power_ups, collisions, health_drops):
     '''Randomly drop a powerup when an alien is killed.'''
     if collisions:
-        chance = 1
+        chance = roll_die(stats)
 
         if chance == 1:
             drop_god_bullet(ai_settings, screen, stats, power_ups, collisions)
@@ -663,35 +664,38 @@ def health_drop_collisions(ship, health_drops):
 
 def add_power_to_activated_powers(stats, collisions, power_ups):
     '''if power up is already active reset timer else add it to active powers.'''
-    for collision in collisions:    
-        if not collision.permanent:
-            '''not permenant'''
-            # god_bullet.
-            if isinstance(collision, GodBulletPowerUp) and stats.god_bullet_active:
-                stats.reset_god_bullet_timer = True
-            else:
-                stats.active_powers.add(collision)
+    if collisions:
+        for collision in collisions:    
+            if not collision.permanent:
+                '''not permenant'''
+                # god_bullet.
+                if isinstance(collision, GodBulletPowerUp):
+                    if stats.god_bullet_active:
+                        stats.reset_god_bullet_timer = True
+                    else:
+                        stats.active_powers.add(collision)
 
-            # machine_gun.
-            if isinstance(collision, MachineGunPowerUp) and stats.machine_gun_active:
-                stats.reset_machine_gun_timer = True
-            else:
-                stats.active_powers.add(collision)
-                
-        elif collision.permanent:
-            '''permanent'''
-            # mantis.
-            if isinstance(collision, MantisPowerUp):
-                stats.permanent_powers.add(collision)
-                power_ups.remove(collision)
+                # machine_gun.
+                if isinstance(collision, MachineGunPowerUp):
+                    if stats.machine_gun_active:
+                        stats.reset_machine_gun_timer = True
+                    else:
+                        stats.active_powers.add(collision)
+                    
+            elif collision.permanent:
+                '''permanent'''
+                # mantis.
+                if isinstance(collision, MantisPowerUp):
+                    stats.permanent_powers.add(collision)
+                    power_ups.remove(collision)
 
-            # mantis God.
-            elif isinstance(collision, MantisGodPowerUp):
-                for power in stats.permanent_powers:
-                    power.end_power()
-                stats.permanent_powers.empty()
-                stats.permanent_powers.add(collision)
-                power_ups.remove(collision)
+                # mantis God.
+                elif isinstance(collision, MantisGodPowerUp):
+                    for power in stats.permanent_powers:
+                        power.end_power()
+                    stats.permanent_powers.empty()
+                    stats.permanent_powers.add(collision)
+                    power_ups.remove(collision)
                 
 def end_power(ai_settings, stats, active_powers):
     '''
@@ -705,9 +709,14 @@ def end_power(ai_settings, stats, active_powers):
         for power in active_powers:
             # if a already have a power_up reset its timer.
             reset_timers(stats, power)
-            if now - power.start_time >= ai_settings.power_up_timer:
-                power.end_power()
-                active_powers.remove(power)
+            if isinstance(power, GodBulletPowerUp):
+                if now - power.start_time >= ai_settings.god_bullet_timer:
+                    power.end_power()
+                    active_powers.remove(power)
+            elif isinstance(power, MachineGunPowerUp):
+                if now - power.start_time >= ai_settings.machine_gun_timer:
+                    power.end_power()
+                    active_powers.remove(power)
 
 
 def reset_timers(stats, power):

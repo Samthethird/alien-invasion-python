@@ -19,13 +19,14 @@ class Settings():
         self.god_bullet_color = (110, 0, 20)
         self.machine_gun_color = (40, 40, 100)
 
-        self.power_up_timer = 15_000
+        self.machine_gun_timer = 9_000 # 9s
+        self.god_bullet_timer = 6_000 # 6s
 
         # Alien settings.
         self.fleet_drop_speed = 10 #10
 
         # Game speed up factor.
-        self.speedup_scale = 1.1 #1.1
+        self.speedup_scale = 1.125 #1.1
 
         # Score Multiplier
         self.score_scale = 1.15
