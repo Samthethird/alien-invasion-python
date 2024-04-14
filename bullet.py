@@ -2,7 +2,7 @@ import math
 import pygame
 from pygame.sprite import Sprite
 
-
+# how to make diagonal bullets
 class Bullet(Sprite):
     '''A class to manage the bullets fired from the ship.'''
     

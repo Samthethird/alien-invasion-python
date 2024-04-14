@@ -12,11 +12,10 @@ class MantisGodPowerUp(PowerUp):
     def update_location(self):
         self.image = pygame.image.load(self.image_location)
         self.rect = self.image.get_rect()
-        self.rect.center = self.screen_rect.center
+        self.rect.center = self.screen_rect.midtop
 
         self.y = float(self.rect.y)
 
     def give_power(self):
-        # make it so fire_bullet() function can shoot three bullets to three different directions.
         self.ai_settings.bullets_allowed *= 3
         self.stats.mantis_god_active = True

@@ -400,7 +400,7 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, bullets,
 
 def next_level(ai_settings, screen, stats, sb, ship, bullets, aliens, sound,
                power_ups):
-        if len(aliens) == 0 and stats.level == 5 and not stats.power_up_level_passed:
+        if len(aliens) == 0 and stats.level == 13 and not stats.power_up_level_passed:
             power_up_level(ai_settings, screen, stats, sb, ship, sound, bullets, 
                    power_ups, aliens)
 
@@ -498,7 +498,7 @@ def drop_health(ai_settings, screen, stats, collisions, health_drops):
 
 
 def drop_god_bullet(ai_settings, screen, stats, power_ups, collisions):
-    # drop god_bullet.
+    # drop god_bullet.            
     for aliens in collisions.values():
         for alien in aliens:
             god_bullet_power_up = GodBulletPowerUp(ai_settings, screen, stats, alien)
@@ -519,14 +519,14 @@ def roll_die(stats):
     #roll a dice to determine power_up dropped.
     if stats.level < 6:
         chance = random.randint(1, 200)
-    elif stats.level < 10:
+    elif stats.level < 13:
         chance = random.randint(1, 150)
-    elif stats.level < 15:
-        chance = random.randint(1, 80)
-    elif stats.level <= 18:
-        chance = random.randint(1, 30)
-    elif stats.level > 18:
-        chance= random.randint(1,10)
+    elif stats.level < 18:
+        chance = random.randint(1, 100)
+    elif stats.level <= 24:
+        chance = random.randint(1, 50)
+    elif stats.level > 25:
+        chance= random.randint(1, 30)
     return chance
 
 

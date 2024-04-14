@@ -17,15 +17,10 @@ from ship import Ship
 from hit import Hit
 import pygame
 
-# 10. make a round in between to get permenant power_ups
-# 10.2 make permenant power-Ups works
-# 10.3 add three bullet powerup as permenant power-Up
-# 4.morepowerups.
+# bug fixes
 # 5.add pause and menu.
 # 6.improve main menu
-# 8.make op powerups rare make weak powerups common
-# 9.fix op-ness : chances ("roll die"), etc ...
-# should change healtH   DROP VISUALS?
+# should change healtH DROP VISUALS?
 # figure out sine wave
 
 
@@ -37,11 +32,11 @@ class AlienInvasion():
         pygame.init()
         self.stats = GameStats()
         self.ai_settings = Settings(self.stats)
+        
         # self.Screen object.
         self.screen = pygame.display.set_mode(
             (self.ai_settings.screen_width, self.ai_settings.screen_height))
         pygame.display.set_caption("Alien Invasion")
-        
         # Instances.
         self.particle_system = ParticleSystem()
         self.play_button = Button(self.ai_settings, self.screen, "Play")
