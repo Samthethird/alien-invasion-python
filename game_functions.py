@@ -68,11 +68,15 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens,
         aliens.empty()
 
 def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound, 
-                           particle_system):
+                           ):
     machine_gun_backup(ai_settings, stats)
     now = pygame.time.get_ticks()
     if stats.shooting:
-        if now - stats.start_time >= 140:
+        if stats.god_bullet_active:
+            if now - stats.start_time >= 380:
+                fire_bullet(ai_settings, screen, stats, ship, bullets, sound, 
+                        )
+        elif now - stats.start_time >= 200:
             fire_bullet(ai_settings, screen, stats, ship, bullets, sound, 
                         )
                 
@@ -197,7 +201,7 @@ def check_power_up_particles(power_ups, particle_system, health_drops):
                 powerup.rect.x + powerup.rect.width //2,
                 powerup.rect.y + powerup.rect.height,
                 (187, 165, 61), dx=(-0.7, 0.7), dy=(-1, 0.3),
-                life_time=100, size=3
+                life_time=90, size=3 # 100
             )
 
     if health_drops:
@@ -206,7 +210,7 @@ def check_power_up_particles(power_ups, particle_system, health_drops):
                 drop.rect.x + drop.rect.width //2,
                 drop.rect.y + drop.rect.height,
                 (255, 36, 0), dx=(-0.7, 0.7), dy=(-1, 0.3),
-                life_time=100, size=2
+                life_time=90, size=2 # 100
             )
 
 
@@ -218,7 +222,7 @@ def check_god_bullet_particles(ai_settings, stats, bullets, particle_system):
                                         bullet.rect.y + bullet.rect.height // 2,
                                         ai_settings.god_bullet_color,
                                         dx=(-1.4, 1.4), dy=(-0.3, 2), 
-                                        life_time=51, size=3
+                                        life_time=49, size=3 # 51
                                         )
             
             particle_system.add_particle(
@@ -226,7 +230,7 @@ def check_god_bullet_particles(ai_settings, stats, bullets, particle_system):
                                         bullet.rect.y + bullet.rect.height // 2,
                                         ai_settings.god_bullet_color,
                                         dx=(-1.4, 1.4), dy=(-0.3, 2), 
-                                        life_time=51, size=3
+                                        life_time=49, size=3
                                         )
 
 
@@ -504,7 +508,7 @@ def hard_mode_collisions(stats, g_aliens, collisions, hit):
 def drop_power_up(ai_settings, screen, stats, power_ups, collisions, health_drops):
     '''Randomly drop a powerup when an alien is killed.'''
     if collisions:
-        chance = roll_die(stats)
+        chance = 1
 
         if chance == 1:
             drop_god_bullet(ai_settings, screen, stats, power_ups, collisions)
@@ -528,21 +532,41 @@ def drop_health(ai_settings, screen, stats, collisions, health_drops):
 
 
 def drop_god_bullet(ai_settings, screen, stats, power_ups, collisions):
-    # drop god_bullet.            
-    for aliens in collisions.values():
-        for alien in aliens:
-            god_bullet_power_up = GodBulletPowerUp(ai_settings, screen, stats, alien)
-            # add it to the power_ups on screen, group.
-            power_ups.add(god_bullet_power_up)
+    # drop god_bullet.
+    nom = check_one_god_bullet(power_ups)
+    if nom < 1:
+        for aliens in collisions.values():
+            for alien in aliens:
+                god_bullet_power_up = GodBulletPowerUp(ai_settings, screen, stats, alien)
+                # add it to the power_ups on screen, group.
+                power_ups.add(god_bullet_power_up)
 
 
 def drop_machine_gun(ai_settings, screen, stats, power_ups, collisions):
     # if dice rolled 2 drop a "mahcine_gun" powerup.
-    for aliens in collisions.values():
-        for alien in aliens:
-            machine_gun_power_up = MachineGunPowerUp(ai_settings, screen, stats, alien)
-            # add it to the power_ups on screen. 
-            power_ups.add(machine_gun_power_up)
+    nom = check_one_machine_gun(power_ups)
+    if nom < 1:
+        for aliens in collisions.values():
+            for alien in aliens:
+                machine_gun_power_up = MachineGunPowerUp(ai_settings, screen, stats, alien)
+                # add it to the power_ups on screen. 
+                power_ups.add(machine_gun_power_up)
+
+
+def check_one_god_bullet(power_ups):
+    god_in_power = 0
+    for power in power_ups:
+        if isinstance(power, GodBulletPowerUp):
+            god_in_power += 1
+    return god_in_power
+
+
+def check_one_machine_gun(power_ups):
+    machine_in_power = 0
+    for power in power_ups:
+        if isinstance(power, MachineGunPowerUp):
+            machine_in_power += 1
+    return machine_in_power
 
 
 def roll_die(stats):
@@ -550,13 +574,13 @@ def roll_die(stats):
     if stats.level < 6:
         chance = random.randint(1, 200)
     elif stats.level < 13:
-        chance = random.randint(1, 150)
+        chance = random.randint(1, 170)
     elif stats.level < 18:
-        chance = random.randint(1, 100)
+        chance = random.randint(1, 140)
     elif stats.level <= 24:
-        chance = random.randint(1, 50)
+        chance = random.randint(1, 110)
     elif stats.level >= 25:
-        chance= random.randint(1, 30)
+        chance= random.randint(1, 90)
     return chance
 
 
@@ -589,7 +613,6 @@ def update_power_ups(sound, sb, screen_rect, stats, ship, power_ups,
             collisions = health_drop_collisions(ship, health_drops)
 
             add_health(stats, sb, collisions)
-
 
 
 def add_health(stats, sb, collisions):
@@ -694,7 +717,7 @@ def reset_timers(stats, power):
         power.get_start_time()
         stats.reset_god_bullet_timer = False
     # machine_gun.
-    elif isinstance(power,MachineGunPowerUp) and stats.reset_machine_gun_timer:
+    elif isinstance(power, MachineGunPowerUp) and stats.reset_machine_gun_timer:
         power.get_start_time()
         stats.reset_machine_gun_timer = False
 

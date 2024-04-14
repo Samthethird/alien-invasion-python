@@ -1,8 +1,6 @@
 from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
-from power_up_machine_gun import MachineGunPowerUp
-from power_up_god_bullet import GodBulletPowerUp
 from particles import ParticleSystem
 from background import BackGround
 from scoreboard import Scoreboard
@@ -18,11 +16,6 @@ from hit import Hit
 import pygame
 
 # bug fixes
-# 5.add pause and menu.
-# 6.improve main menu
-# should change healtH DROP VISUALS?
-# figure out sine wave
-# particles god_bullet bug
  
 class AlienInvasion():
     '''Class for the game alien invasion.'''
@@ -59,6 +52,7 @@ class AlienInvasion():
         '''run all game functions'''
         # Main game loop.
         while True:
+            print(self.power_ups)
             # GAME NOT ACTIVE.
             gf.check_events(self.ai_settings, self.screen, 
                             self.stats, self.sb, self.play_button, 
@@ -70,14 +64,14 @@ class AlienInvasion():
                                self.health_drops)
             gf.check_machine_gun_mode(self.ai_settings, self.screen, 
                                       self.stats, self.ship, self.bullets, 
-                                      self.sound, self.particle_system
+                                      self.sound
                                       )
 
             # GAME ACTIVE.
             if self.stats.game_active:
                 # lock on 180 F_P_S
                 self.clock.tick(180)
-
+                print(self.stats.active_powers)
                 self.ship.update()
                 gf.update_bullet(self.ai_settings, self.screen, self.stats, 
                                 self.sb, self.ship, self.aliens, self.bullets,

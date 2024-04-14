@@ -30,11 +30,16 @@ class Bullet(Sprite):
     def set_location(self):
         # Create a bullet and correct position.
         (x, y) = self.ship.rect.midtop
+        if self.stats.god_bullet_active:
+            increment = 25
+        else:
+            increment = 15
+
         if self.stats.mantis_active:
             if self.index == 1:
-                self.rect.midtop = (x-10, y)
+                self.rect.midtop = (x-increment, y)
             if self.index == 2:
-                self.rect.midtop = (x+10, y)
+                self.rect.midtop = (x+increment, y)
 
     def update(self):
         '''Moving the bullet up the screen.'''

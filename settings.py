@@ -25,7 +25,7 @@ class Settings():
         self.fleet_drop_speed = 10 #10
 
         # Game speed up factor.
-        self.speedup_scale = 1. #1.1
+        self.speedup_scale = 1.1 #1.1
 
         # Score Multiplier
         self.score_scale = 1.15
@@ -48,6 +48,8 @@ class Settings():
         self.alien_points = 50
 
         self.alien_destruction = False
+        self.bullets_allowed = 3 #3
+
 
     def reset_god_bullet_settings(self):
         '''initiate settings that can be increased by powerUps.'''
@@ -55,7 +57,6 @@ class Settings():
         self.bullet_width = 3 #3
         self.bullet_height = 15 #15
         self.bullet_color = (250, 130, 130)
-        self.bullets_allowed = 3 #3
         self.bullet_destruction = True
 
     def increase_speed(self):
