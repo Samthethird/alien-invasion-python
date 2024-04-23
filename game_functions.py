@@ -13,21 +13,20 @@ import json
 import sys
 
 
-def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens,
-                 bullets, sound):
+def check_events(ai_game):
     '''Respond to keyboard and mouse activity.'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            close_game(stats, sound)
+            close_game(ai_game.stats, ai_game.sound)
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, ai_settings, screen, stats, sb, ship,
-                                 aliens, bullets, sound)
+            check_keydown_events(event, ai_game.ai_settings, ai_game.screen, ai_game.stats, ai_game.sb, ai_game.ship,
+                                 ai_game.aliens, ai_game.bullets, ai_game.sound)
         elif event.type == pygame.KEYUP:
-            check_keyup_events(event, stats, ship) 
+            check_keyup_events(event, ai_game.stats, ai_game.ship) 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens,
-                              bullets, mouse_x, mouse_y, sound)
+            check_play_button(ai_game.ai_settings, ai_game.screen, ai_game.stats, ai_game.sb, ai_game.play_button, ai_game.ship, ai_game.aliens,
+                              ai_game.bullets, mouse_x, mouse_y, ai_game.sound)
 
 
 def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens, 
@@ -62,7 +61,8 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens,
         stats.shooting = True
     elif event.key == pygame.K_p:
         start_game(ai_settings, screen, stats, sb, ship, aliens, bullets, sound)
-
+    elif event.key == pygame.K_f:
+        aliens.empty()
 
 def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound, 
                            ):
@@ -73,7 +73,7 @@ def check_machine_gun_mode(ai_settings, screen, stats, ship, bullets, sound,
             if now - stats.start_time >= 380:
                 fire_bullet(ai_settings, screen, stats, ship, bullets, sound, 
                         )
-        elif now - stats.start_time >= 200:
+        elif now - stats.start_time >= 180:
             fire_bullet(ai_settings, screen, stats, ship, bullets, sound, 
                         )
                 
@@ -535,7 +535,7 @@ def drop_health(ai_settings, screen, stats, collisions, health_drops):
 def drop_god_bullet(ai_settings, screen, stats, power_ups, collisions):
     # drop god_bullet.
     nom = check_one_god_bullet(power_ups)
-    if nom < 1:
+    if nom == 1:
         for aliens in collisions.values():
             for alien in aliens:
                 god_bullet_power_up = GodBulletPowerUp(ai_settings, screen, stats, alien)
@@ -546,7 +546,7 @@ def drop_god_bullet(ai_settings, screen, stats, power_ups, collisions):
 def drop_machine_gun(ai_settings, screen, stats, power_ups, collisions):
     # if dice rolled 2 drop a "mahcine_gun" powerup.
     nom = check_one_machine_gun(power_ups)
-    if nom < 1:
+    if nom == 1:
         for aliens in collisions.values():
             for alien in aliens:
                 machine_gun_power_up = MachineGunPowerUp(ai_settings, screen, stats, alien)
@@ -555,33 +555,45 @@ def drop_machine_gun(ai_settings, screen, stats, power_ups, collisions):
 
 
 def check_one_god_bullet(power_ups):
-    god_in_power = 0
-    for power in power_ups:
-        if isinstance(power, GodBulletPowerUp):
-            god_in_power += 1
-    return god_in_power
-
+    if power_ups:
+        length_power_ups = len(power_ups.sprites())
+        if length_power_ups >= 2:
+            return 0
+        elif length_power_ups < 2:
+            for power in power_ups:
+                if isinstance(power, GodBulletPowerUp):
+                    return 0
+                else:
+                    return 1
+    else:
+        return 1
 
 def check_one_machine_gun(power_ups):
-    machine_in_power = 0
-    for power in power_ups:
-        if isinstance(power, MachineGunPowerUp):
-            machine_in_power += 1
-    return machine_in_power
-
+    if power_ups:
+        length_power_ups = len(power_ups.sprites())
+        if length_power_ups >= 2:
+            return 0
+        elif length_power_ups < 2:
+            for power in power_ups:
+                if isinstance(power, MachineGunPowerUp):
+                    return 0
+                else:
+                    return 1
+    else:
+        return 1
 
 def roll_die(stats):
     #roll a dice to determine power_up dropped.
     if stats.level < 6:
-        chance = random.randint(1, 200)
+        chance = random.randint(1, 180)
     elif stats.level < 13:
         chance = random.randint(1, 170)
     elif stats.level < 18:
         chance = random.randint(1, 140)
     elif stats.level <= 24:
-        chance = random.randint(1, 110)
+        chance = random.randint(1, 130)
     elif stats.level >= 25:
-        chance= random.randint(1, 90)
+        chance= random.randint(1, 120)
     return chance
 
 

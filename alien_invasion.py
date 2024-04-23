@@ -53,11 +53,7 @@ class AlienInvasion():
         # Main game loop.
         while True:
             # GAME NOT ACTIVE.
-            gf.check_events(self.ai_settings, self.screen, 
-                            self.stats, self.sb, self.play_button, 
-                            self.ship, self.aliens, 
-                            self.bullets, self.sound
-                            )
+            gf.check_events(self)
             gf.check_particles(self.ai_settings, self.particle_system, 
                                self.bullets, self.stats, self.power_ups,
                                self.health_drops)
@@ -91,8 +87,9 @@ class AlienInvasion():
                             self.sound, self.menu_art, self.power_ups, self.bg,
                             self.particle_system, self.health_drops
                             )
-            
+              
             gf.update_music(self.stats, self.sound)
+
 
             
 if __name__ == "__main__":
